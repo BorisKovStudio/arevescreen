@@ -1,4 +1,5 @@
 .idea/
+*.iml
 .vercel/
 .DS_Store
 .next/

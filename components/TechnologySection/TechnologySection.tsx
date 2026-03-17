@@ -63,6 +63,7 @@ export function TechnologySection({ items }: TechnologySectionProps) {
             {groups.map((group, index) => (
               <div
                 key={`panel-${group[0]?.title ?? index}`}
+                aria-hidden={activeTab !== index}
                 aria-labelledby={`technology-tab-${index}`}
                 className={`${styles.grid} ${activeTab === index ? styles.gridActive : ''}`}
                 id={`technology-panel-${index}`}

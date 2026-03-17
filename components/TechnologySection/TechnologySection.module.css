@@ -1,6 +1,6 @@
 .section {
   overflow: hidden;
-  padding: 0 1em 1em;
+  padding: clamp(2.25rem, 4vw, 3.5rem) 1.5em clamp(1.75rem, 3vw, 2.5rem);
   background:
     linear-gradient(90deg, var(--panel) 4%, rgba(245, 245, 245, 0.34) 4%),
     var(--panel-soft);
@@ -112,17 +112,26 @@
 }
 
 .tabPanels {
+  display: grid;
   position: relative;
 }
 
 .grid {
-  display: none;
+  display: grid;
+  grid-area: 1 / 1;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+  align-content: start;
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
 }
 
 .gridActive {
-  display: grid;
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+  z-index: 1;
 }
 
 .card {
@@ -184,7 +193,7 @@
 
 @media (max-width: 767px) {
   .section {
-    padding: 2em 1em 1em 2em;
+    padding: 2.5em 1.25em 1.5em;
   }
 
   .grid,
