@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 import type { FaqItem } from '@/data/siteContent';
 import styles from './FaqSection.module.css';
@@ -8,6 +11,8 @@ type FaqSectionProps = {
 };
 
 export function FaqSection({ items, image }: FaqSectionProps) {
+  const [openIndex, setOpenIndex] = useState(0);
+
   return (
     <section className={styles.section} id="faq">
       <div className={styles.inner}>
@@ -29,8 +34,16 @@ export function FaqSection({ items, image }: FaqSectionProps) {
 
         <div className={styles.stack}>
           {items.map((item, index) => (
-            <details key={item.question} className={styles.item} open={index === 0}>
-              <summary className={styles.summary}>{item.question}</summary>
+            <details key={item.question} className={styles.item} open={openIndex === index}>
+              <summary
+                className={styles.summary}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setOpenIndex((current) => (current === index ? current : index));
+                }}
+              >
+                {item.question}
+              </summary>
               <p className={styles.answer}>{item.answer}</p>
             </details>
           ))}
