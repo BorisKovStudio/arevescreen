@@ -229,22 +229,28 @@ export function FabricSection({ fabricOptions, highlightImage }: FabricSectionPr
         </div>
 
         <div className={styles.showcase}>
-          <div className={styles.copyCard}>
-            <h3>Various fabric choices available.</h3>
-            <p>
-              We provide a range of fabrics with varying degrees of light permeability to
-              accommodate your preferences and requirements.
-            </p>
-          </div>
+          <div className={styles.showcaseContent}>
+            <div className={styles.copyCard}>
+              <h3>
+                Various fabric choices
+                <br />
+                available.
+              </h3>
+              <p>
+                We provide a range of fabrics with varying degrees of light permeability to
+                accommodate your preferences and requirements.
+              </p>
+            </div>
 
-          <div className={styles.imageFrame}>
-            <Image
-              alt="Areve fabric example"
-              className={styles.image}
-              fill
-              sizes="(max-width: 920px) 100vw, 50vw"
-              src={highlightImage}
-            />
+            <div className={styles.imageFrame}>
+              <Image
+                alt="Areve fabric example"
+                className={styles.image}
+                fill
+                sizes="(max-width: 920px) 100vw, 50vw"
+                src={highlightImage}
+              />
+            </div>
           </div>
         </div>
       </div>

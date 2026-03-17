@@ -1,5 +1,5 @@
 .section {
-  padding: 2em 0.5em 1em;
+  padding: 2em 0.5em;
 }
 
 .inner {
@@ -54,19 +54,21 @@
 
 .card {
   position: relative;
+  min-height: 300px;
   overflow: hidden;
-  min-height: 270px;
+  cursor: pointer;
   background-image: var(--project-image);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  outline: none;
 }
 
 .card::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 8%, rgba(0, 0, 0, 0.62) 100%);
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0.18) 0%, rgba(26, 26, 26, 0.52) 100%);
 }
 
 .front,
@@ -75,56 +77,291 @@
   inset: 0;
   z-index: 1;
   display: grid;
-  align-content: end;
-  gap: 16px;
-  padding: 24px;
-  color: #ffffff;
+  justify-items: center;
+  text-align: center;
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 320ms ease;
 }
 
 .front {
-  transform: translateY(0);
-  transition: transform 260ms ease;
+  align-content: center;
+  padding: 32px;
 }
 
 .front h3 {
-  font-size: 34px;
-  line-height: 1.2;
+  max-width: 9ch;
+  color: #ffffff;
+  font-size: clamp(2rem, 2.2vw, 2.8rem);
+  line-height: 1.05;
 }
 
 .back {
-  background: rgba(0, 0, 0, 0.56);
-  transform: translateY(74%);
-  transition: transform 260ms ease;
+  align-content: center;
+  gap: 20px;
+  padding: 36px 32px;
+  color: #ffffff;
+  background: var(--accent);
+  transform: translateY(100%);
 }
 
 .back p {
+  max-width: 28ch;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-.back a {
+.showMore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: fit-content;
-  padding: 10px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  font-size: 14px;
+  min-width: 136px;
+  padding: 12px 18px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  color: #ffffff;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.2;
+  letter-spacing: 1.3px;
   text-transform: uppercase;
 }
 
 .card:hover .front,
-.card:focus-within .front {
-  transform: translateY(-18%);
+.card:focus-visible .front {
+  transform: translateY(-100%);
 }
 
 .card:hover .back,
-.card:focus-within .back {
+.card:focus-visible .back {
   transform: translateY(0);
 }
 
-@media (max-width: 980px) {
-  .header,
+.card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(230, 108, 37, 0.35);
+}
+
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 2.4vw, 28px);
+}
+
+.viewerBackdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.8), rgba(5, 5, 5, 0.88)),
+    radial-gradient(circle at 50% 0, rgba(230, 108, 37, 0.08), transparent 32%);
+  backdrop-filter: blur(10px);
+  animation: viewerFadeIn 220ms ease;
+}
+
+.viewerPanel {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, 100%);
+  height: calc(100dvh - clamp(24px, 4vw, 40px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 18px;
+  animation: viewerPanelIn 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.viewerHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding-inline: 2px;
+}
+
+.viewerMeta {
+  display: grid;
+  gap: 6px;
+  width: fit-content;
+  min-width: min(420px, 100%);
+  padding: 0 0 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.viewerMeta::before {
+  content: 'Project Gallery';
+  color: rgba(230, 108, 37, 0.88);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.viewerMeta h3 {
+  color: #f7f1ea;
+  font-size: clamp(1.9rem, 2.2vw, 2.7rem);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+}
+
+.viewerMeta span {
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.viewerClose {
+  justify-self: end;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.viewerClose:hover,
+.viewerClose:focus-visible {
+  border-color: rgba(230, 108, 37, 0.56);
+  color: #ffffff;
+  background-color: rgba(230, 108, 37, 0.08);
+}
+
+.viewerStage {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  height: 100%;
+  padding: clamp(10px, 1.4vw, 16px) clamp(48px, 5vw, 64px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.98), rgba(9, 9, 9, 1));
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.viewerStage::before,
+.viewerStage::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(54px, 6vw, 72px);
+  pointer-events: none;
+}
+
+.viewerStage::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0));
+}
+
+.viewerStage::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0));
+}
+
+.viewerImageWrap {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.viewerImage {
+  object-fit: contain;
+}
+
+.viewerNav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(12, 12, 12, 0.52);
+  backdrop-filter: blur(12px);
+  transform: translateY(-50%);
+  font-size: 30px;
+  line-height: 1;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.viewerNav:hover,
+.viewerNav:focus-visible {
+  border-color: rgba(230, 108, 37, 0.54);
+  color: #fff7ef;
+  background-color: rgba(230, 108, 37, 0.1);
+  transform: translateY(-50%);
+}
+
+.viewerNavPrev {
+  left: 18px;
+}
+
+.viewerNavNext {
+  right: 18px;
+}
+
+.viewerThumbs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.viewerThumb {
+  position: relative;
+  flex: 0 0 82px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f0f0f;
+  opacity: 0.5;
+  transition:
+    border-color 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.viewerThumbActive {
+  border-color: var(--accent);
+  opacity: 1;
+}
+
+.viewerThumb:hover,
+.viewerThumb:focus-visible {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.viewerThumbImage {
+  object-fit: cover;
+}
+
+@media (max-width: 1100px) {
   .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .header {
     grid-template-columns: 1fr;
   }
 
@@ -133,13 +370,104 @@
   }
 }
 
-@media (hover: none) {
-  .front,
-  .back {
-    position: relative;
+@media (max-width: 767px) {
+  .section {
+    padding: 2em 1em;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    min-height: 270px;
+  }
+
+  .front {
+    padding: 26px;
+  }
+
+  .front h3 {
+    font-size: 2.2rem;
   }
 
   .back {
-    transform: none;
+    padding: 28px 24px;
+  }
+
+  .viewer {
+    padding: 16px;
+  }
+
+  .viewerPanel {
+    gap: 12px;
+  }
+
+  .viewerHeader {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .viewerMeta {
+    min-width: 0;
+  }
+
+  .viewerClose {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .viewerStage {
+    padding: 10px 40px;
+  }
+
+  .viewerNav {
+    width: 44px;
+    height: 44px;
+    font-size: 30px;
+  }
+
+  .viewerNavPrev {
+    left: 8px;
+  }
+
+  .viewerNavNext {
+    right: 8px;
+  }
+
+  .viewerThumb {
+    flex-basis: 72px;
+  }
+}
+
+@media (hover: none) {
+  .front {
+    transform: none !important;
+  }
+
+  .back {
+    display: none;
+  }
+}
+
+@keyframes viewerFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes viewerPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

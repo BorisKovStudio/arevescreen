@@ -1,12 +1,12 @@
 .section {
-  padding: 0 1em 2em;
+  padding: 2em 1em;
 }
 
 .inner {
   width: min(var(--max-width), 100%);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 35%) minmax(0, 65%);
   gap: 32px;
   align-items: start;
 }
@@ -14,12 +14,15 @@
 .visualColumn {
   position: relative;
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 .kicker {
   color: var(--ink);
+  max-width: 200px;
+  font-family: var(--font-display);
   font-size: 45px;
+  font-weight: 600;
   line-height: 1.1;
 }
 
@@ -37,39 +40,46 @@
 
 .imageAccent {
   position: absolute;
-  left: -7px;
-  bottom: 60px;
-  width: 120px;
-  height: 150px;
-  background: var(--accent);
+  left: -20px;
+  bottom: -20px;
+  z-index: 1;
+  width: 200px;
+  height: 200px;
+  background-color: rgba(245, 245, 245, 0.84);
+  background-image: url('/media/faq/pattern.png');
+  background-size: 80px auto;
 }
 
 .imageFrame {
   position: relative;
   overflow: hidden;
-  min-height: 180px;
+  z-index: 2;
+  height: 335px;
 }
 
 .image {
   object-fit: cover;
+  object-position: center center;
+  opacity: 0.75;
 }
 
 .stack {
   display: grid;
-  gap: 8px;
+  gap: 3px;
 }
 
 .item {
-  border: 1px solid var(--line);
-  background: #ffffff;
+  border: 0;
+  background: transparent;
 }
 
 .summary {
   position: relative;
-  padding: 22px 56px 22px 20px;
+  padding: 18px 52px 18px 20px;
   cursor: pointer;
   list-style: none;
   color: var(--ink);
+  background: var(--panel-soft);
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 600;
@@ -83,20 +93,28 @@
 .summary::after {
   content: '+';
   position: absolute;
-  top: 16px;
+  top: 50%;
   right: 18px;
   color: var(--accent);
   font-size: 1.5rem;
   line-height: 1;
+  transform: translateY(-50%);
 }
 
 .item[open] .summary::after {
   content: '-';
+  color: #ffffff;
+}
+
+.item[open] .summary {
+  color: #ffffff;
+  background: var(--accent);
 }
 
 .answer {
-  padding: 0 20px 20px;
+  padding: 20px 20px 22px;
   color: var(--muted);
+  background: #ffffff;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -105,10 +123,26 @@
   .inner {
     grid-template-columns: 1fr;
   }
+
+  .imageAccent {
+    left: -7px;
+    bottom: 60px;
+    width: 120px;
+    height: 120px;
+  }
+
+  .imageFrame {
+    height: 180px;
+  }
+
+  .stack {
+    gap: 7px;
+  }
 }
 
 @media (max-width: 767px) {
   .kicker {
+    max-width: 220px;
     font-size: 30px;
   }
 
@@ -120,6 +154,15 @@
   }
 
   .imageFrame {
-    min-height: 200px;
+    height: 200px;
+  }
+
+  .summary {
+    padding: 20px 46px 20px 15px;
+    font-size: 20px;
+  }
+
+  .answer {
+    padding: 15px 15px 18px;
   }
 }

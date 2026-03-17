@@ -6,7 +6,7 @@
   width: min(var(--max-width), 100%);
   margin: 0 auto;
   display: grid;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
+  gap: clamp(2rem, 4vw, 3.25rem);
 }
 
 .header {
@@ -111,36 +111,53 @@
 }
 
 .showcase {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: clamp(3rem, 5vw, 4rem) 0;
+  background: linear-gradient(90deg, var(--accent) 75%, #fff 75%);
+}
+
+.showcaseContent {
+  width: min(var(--max-width), calc(100vw - 2em));
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: stretch;
+  grid-template-columns: minmax(22rem, 1fr) minmax(24rem, 1.22fr);
+  align-items: center;
+  gap: clamp(1.5rem, 2.75vw, 3rem);
 }
 
 .copyCard {
   display: grid;
-  align-content: start;
-  gap: 16px;
-  padding: 46px 28px 46px 10px;
+  align-content: center;
+  gap: 18px;
+  min-height: clamp(18rem, 22vw, 22rem);
+  margin-right: 0;
+  padding: 0 clamp(1rem, 2vw, 1.5rem) 0 0;
   color: var(--panel);
-  background: var(--accent);
+  background: transparent;
 }
 
 .copyCard h3 {
-  font-size: 34px;
-  line-height: 1.2;
+  max-width: none;
+  font-size: clamp(2.75rem, 3.6vw, 4rem);
+  line-height: 1.04;
   color: var(--panel);
 }
 
 .copyCard p {
-  font-size: 16px;
+  max-width: 40ch;
+  font-size: clamp(1rem, 1.1vw, 1.125rem);
   line-height: 1.5;
 }
 
 .imageFrame {
   position: relative;
-  min-height: 200px;
-  margin-bottom: -2em;
-  padding-left: 10px;
+  min-height: clamp(18rem, 22vw, 22rem);
+  height: clamp(18rem, 22vw, 22rem);
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
 }
 
 .image {
@@ -149,7 +166,7 @@
 
 @media (max-width: 920px) {
   .header,
-  .showcase {
+  .showcaseContent {
     grid-template-columns: 1fr;
   }
 
@@ -165,12 +182,31 @@
   }
 
   .copyCard {
-    padding: 32px 24px;
+    margin-right: 0;
+    padding: 40px 20px 40px 10px;
+    min-height: 0;
+    background: var(--accent);
+  }
+
+  .showcase {
+    width: auto;
+    margin-left: 0;
+    padding: 0 1em 2em;
+    background: transparent;
+  }
+
+  .showcaseContent {
+    width: 100%;
+    gap: 0;
   }
 
   .imageFrame {
-    margin-bottom: 0;
-    padding-left: 0;
+    position: relative;
+    min-height: clamp(12.5rem, 40vw, 15rem);
+    height: clamp(12.5rem, 40vw, 15rem);
+    width: auto;
+    margin: 0 0 -2rem 10px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -184,6 +220,24 @@
     padding-inline: 0.25rem;
     -webkit-mask-image: none;
     mask-image: none;
+  }
+
+  .showcase {
+    padding: 0 1em 0;
+  }
+
+  .copyCard h3 {
+    max-width: none;
+    font-size: clamp(2.25rem, 11vw, 3.25rem);
+  }
+
+  .copyCard p {
+    max-width: none;
+  }
+
+  .imageFrame {
+    min-height: 12.5rem;
+    height: 12.5rem;
   }
 }
 

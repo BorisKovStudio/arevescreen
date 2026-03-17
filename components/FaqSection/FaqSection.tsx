@@ -21,7 +21,7 @@ export function FaqSection({ items, image }: FaqSectionProps) {
               alt="Patio screen detail"
               className={styles.image}
               fill
-              sizes="(max-width: 920px) 100vw, 44vw"
+              sizes="(max-width: 920px) 100vw, 35vw"
               src={image}
             />
           </div>
