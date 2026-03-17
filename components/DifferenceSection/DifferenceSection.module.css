@@ -1,0 +1,95 @@
+.section {
+  background: var(--panel);
+}
+
+.band {
+  position: relative;
+  overflow: hidden;
+  padding: 7em 1em 5em;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.bandOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.5);
+}
+
+.bandInner {
+  position: relative;
+  z-index: 1;
+  width: min(700px, 100%);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.bandDivider {
+  display: block;
+  width: 150px;
+  height: 2px;
+  margin: 0 auto 24px;
+  background: var(--accent);
+}
+
+.bandHeading {
+  color: var(--panel);
+  font-size: 57px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -2px;
+}
+
+.bandText {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.content {
+  width: min(var(--max-width), calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 2em 1em 0;
+  text-align: center;
+}
+
+.kicker {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 0.35em 0 0.45em;
+  font-size: 45px;
+  line-height: 1.1;
+}
+
+.text {
+  max-width: 810px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+@media (max-width: 767px) {
+  .band {
+    padding: 3em 1em 2em;
+  }
+
+  .bandDivider {
+    width: 100px;
+  }
+
+  .bandHeading {
+    font-size: 36px;
+  }
+
+  .heading {
+    font-size: 30px;
+  }
+}

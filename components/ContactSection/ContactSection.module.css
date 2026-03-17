@@ -1,0 +1,166 @@
+.section {
+  padding: 4em 1em;
+  background: var(--panel-dark);
+}
+
+.inner {
+  width: min(var(--max-width), 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.44fr) minmax(0, 0.56fr);
+  gap: 0;
+  align-items: start;
+}
+
+.copy {
+  display: grid;
+  gap: 18px;
+  margin: 2.5em 2em 0 0;
+  color: var(--panel);
+}
+
+.heading {
+  color: var(--panel);
+  font-size: 45px;
+  line-height: 1.1;
+}
+
+.text {
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.infoRow {
+  display: grid;
+  gap: 6px;
+}
+
+.infoTitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: var(--font-display);
+}
+
+.infoRow a {
+  color: var(--panel);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.formShell {
+  padding: 15px;
+}
+
+.formHeader,
+.form {
+  background: var(--panel);
+}
+
+.formHeader {
+  display: grid;
+  gap: 14px;
+  padding: 2em 2em 0;
+}
+
+.formHeader h3 {
+  font-size: 45px;
+  line-height: 1.1;
+}
+
+.divider {
+  width: 45px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 1.5em 2em 2em;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--muted);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.submit {
+  grid-column: 1 / -1;
+  min-height: 52px;
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--panel);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.submit:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+@media (max-width: 920px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .copy {
+    margin: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .form {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+
+  .formHeader {
+    padding: 20px 20px 0;
+  }
+
+  .heading,
+  .formHeader h3 {
+    font-size: 30px;
+  }
+}

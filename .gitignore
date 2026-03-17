@@ -1,3 +1,5 @@
 .idea/
 .vercel/
 .DS_Store
+.next/
+node_modules/

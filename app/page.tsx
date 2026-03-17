@@ -1,0 +1,57 @@
+import { CertificatesSection } from '@/components/CertificatesSection/CertificatesSection';
+import { ContactSection } from '@/components/ContactSection/ContactSection';
+import { DifferenceSection } from '@/components/DifferenceSection/DifferenceSection';
+import { FabricSection } from '@/components/FabricSection/FabricSection';
+import { FaqSection } from '@/components/FaqSection/FaqSection';
+import { HeroSection } from '@/components/HeroSection/HeroSection';
+import { IntroSection } from '@/components/IntroSection/IntroSection';
+import { ProjectsSection } from '@/components/ProjectsSection/ProjectsSection';
+import { SiteFooter } from '@/components/SiteFooter/SiteFooter';
+import { SiteHeader } from '@/components/SiteHeader/SiteHeader';
+import { TechnologySection } from '@/components/TechnologySection/TechnologySection';
+import {
+  aboutMedia,
+  certificates,
+  contactDetails,
+  differenceBullets,
+  fabricOptions,
+  featureImages,
+  faqItems,
+  heroSlides,
+  introPillars,
+  navigation,
+  projects,
+  socialLinks,
+  technologyItems,
+} from '@/data/siteContent';
+
+export default function HomePage() {
+  return (
+    <>
+      <SiteHeader
+        email={contactDetails.email}
+        navigation={navigation}
+        phone={contactDetails.phone}
+        socialLinks={socialLinks}
+      />
+      <main>
+        <HeroSection slides={heroSlides} />
+        <IntroSection
+          image={aboutMedia.image}
+          pillars={introPillars}
+          video={aboutMedia.video}
+          videoPoster={aboutMedia.videoPoster}
+          years={aboutMedia.experience}
+        />
+        <DifferenceSection backgroundImage={featureImages.allSeasons} bullets={differenceBullets} />
+        <TechnologySection items={technologyItems} />
+        <FabricSection fabricOptions={fabricOptions} highlightImage={featureImages.fabrics} />
+        <CertificatesSection items={certificates} />
+        <ProjectsSection items={projects} />
+        <FaqSection image={featureImages.faq} items={faqItems} />
+        <ContactSection details={contactDetails} />
+      </main>
+      <SiteFooter details={contactDetails} socialLinks={socialLinks} />
+    </>
+  );
+}

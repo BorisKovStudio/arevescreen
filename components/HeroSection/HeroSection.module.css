@@ -1,0 +1,30 @@
+.hero {
+  padding: 0;
+}
+
+.frame {
+  position: relative;
+  min-height: 592px;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.slideActive {
+  opacity: 1;
+}
+
+.image {
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .frame {
+    min-height: 320px;
+  }
+}

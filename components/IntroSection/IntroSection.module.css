@@ -1,0 +1,236 @@
+.section {
+  overflow: hidden;
+  padding: 7em 1em 5em;
+}
+
+.inner {
+  width: min(var(--max-width), 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.mediaColumn {
+  padding-right: 24px;
+}
+
+.visual {
+  position: relative;
+  width: min(100%, 668px);
+  min-height: 646px;
+}
+
+.primaryFrame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 388px;
+  height: 480px;
+  overflow: hidden;
+}
+
+.secondaryFrame {
+  position: absolute;
+  top: 80px;
+  left: 338px;
+  z-index: 2;
+  width: 330px;
+  height: 556px;
+  padding: 15px;
+  background: var(--panel);
+}
+
+.secondaryInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.counter {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 3;
+  display: grid;
+  gap: 0;
+  width: 170px;
+  padding: 0 20px 10px;
+  background: var(--panel);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.copy {
+  display: grid;
+  align-content: center;
+  gap: 20px;
+  margin-left: 3em;
+  padding-top: 0.75em;
+}
+
+.kicker {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.heading {
+  max-width: 620px;
+  font-size: 57px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -2px;
+}
+
+.text,
+.pillar p {
+  max-width: 648px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.pillars {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10px;
+}
+
+.pillar {
+  width: 50%;
+  padding: 0 10px;
+}
+
+.pillar h3 {
+  margin: 0 0 7px;
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.button {
+  width: fit-content;
+  padding: 0.9em 2em;
+  border: 2px solid var(--accent);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.button:hover {
+  background: var(--accent);
+  color: var(--panel);
+}
+
+.counterValue {
+  color: var(--accent);
+  font-size: 74px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.counterText {
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1024px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .visual {
+    margin: 0 auto;
+  }
+
+  .copy {
+    margin-left: 0;
+    padding-top: 0;
+  }
+
+  .heading {
+    font-size: 37.5px;
+  }
+
+  .counterValue {
+    font-size: 57px;
+  }
+}
+
+@media (max-width: 767px) {
+  .section {
+    padding: 2.5em 1em 1em;
+  }
+
+  .visual {
+    min-height: 0;
+    display: grid;
+    gap: 18px;
+  }
+
+  .primaryFrame,
+  .secondaryFrame,
+  .counter {
+    position: static;
+  }
+
+  .primaryFrame,
+  .secondaryFrame {
+    width: 100%;
+    height: auto;
+  }
+
+  .primaryFrame {
+    min-height: 350px;
+  }
+
+  .secondaryInner {
+    min-height: 320px;
+  }
+
+  .counter {
+    width: 120px;
+    padding: 0 15px 10px;
+  }
+
+  .counterValue {
+    font-size: 44px;
+  }
+
+  .counterText {
+    font-size: 14px;
+  }
+
+  .heading {
+    font-size: 30px;
+  }
+
+  .pillars {
+    gap: 15px 0;
+    margin: 0;
+  }
+
+  .pillar {
+    width: 100%;
+    padding: 0;
+  }
+}

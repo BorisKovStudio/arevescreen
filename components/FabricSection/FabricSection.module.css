@@ -1,0 +1,110 @@
+.section {
+  padding: 0 1em 2em;
+}
+
+.inner {
+  width: min(var(--max-width), 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.3fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.headingBlock {
+  display: grid;
+  gap: 12px;
+}
+
+.heading {
+  font-size: 45px;
+  line-height: 1.1;
+}
+
+.divider {
+  width: 40px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(120px, 1fr);
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.swatch {
+  min-width: 120px;
+}
+
+.swatchImageWrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.swatchImage {
+  object-fit: contain;
+}
+
+.showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.copyCard {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 40px 20px 40px 10px;
+  color: var(--panel);
+  background: var(--accent);
+}
+
+.copyCard h3 {
+  font-size: 34px;
+  line-height: 1.2;
+  color: var(--panel);
+}
+
+.copyCard p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.imageFrame {
+  position: relative;
+  min-height: 200px;
+  margin-bottom: -2em;
+  padding-left: 10px;
+}
+
+.image {
+  object-fit: cover;
+}
+
+@media (max-width: 920px) {
+  .header,
+  .showcase {
+    grid-template-columns: 1fr;
+  }
+
+  .copyCard {
+    padding: 32px 24px;
+  }
+
+  .imageFrame {
+    margin-bottom: 0;
+    padding-left: 0;
+  }
+}
