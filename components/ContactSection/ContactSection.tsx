@@ -4,8 +4,15 @@ import { type ChangeEvent, type FormEvent, useState } from 'react';
 import type { ContactDetails } from '@/data/siteContent';
 import styles from './ContactSection.module.css';
 
+type ContactCalcTier = {
+  minSqft: number;
+  maxSqft: number;
+  pricePerSqft: number;
+};
+
 type ContactSectionProps = {
   details: ContactDetails;
+  calcTiers: ContactCalcTier[];
 };
 
 type ContactFormState = {
@@ -13,6 +20,8 @@ type ContactFormState = {
   phone: string;
   email: string;
   place: string;
+  length: string;
+  width: string;
   message: string;
 };
 
@@ -21,14 +30,58 @@ const initialState: ContactFormState = {
   phone: '',
   email: '',
   place: '',
+  length: '',
+  width: '',
   message: '',
 };
 
-export function ContactSection({ details }: ContactSectionProps) {
+function parsePositiveInteger(value: string) {
+  if (!/^\d+$/.test(value.trim())) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+export function ContactSection({ details, calcTiers }: ContactSectionProps) {
   const [form, setForm] = useState<ContactFormState>(initialState);
+
+  const lengthValue = parsePositiveInteger(form.length);
+  const widthValue = parsePositiveInteger(form.width);
+  const area = lengthValue && widthValue ? lengthValue * widthValue : null;
+  const matchingTier =
+    area !== null
+      ? calcTiers.find((tier) => area >= tier.minSqft && area < tier.maxSqft) ?? null
+      : null;
+  const estimatedPrice = area !== null && matchingTier ? area * matchingTier.pricePerSqft : null;
+  const matchedRate = matchingTier?.pricePerSqft ?? null;
+
+  const estimateTitle =
+    estimatedPrice !== null
+      ? `$${estimatedPrice.toLocaleString('en-US')}`
+      : calcTiers.length === 0
+        ? 'Setup required'
+        : area !== null
+          ? 'No matching tier'
+          : 'Preview estimate';
+
+  const estimateCaption =
+    estimatedPrice !== null
+      ? `${area} sqft at $${matchedRate}/sqft`
+      : calcTiers.length === 0
+        ? 'Estimate will appear after calc periods are configured.'
+        : area !== null
+          ? `No configured price for ${area} sqft.`
+          : 'Enter length and width to see your estimate before sending.';
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
+
+    if ((name === 'length' || name === 'width') && value !== '' && !/^\d+$/.test(value)) {
+      return;
+    }
+
     setForm((current) => ({
       ...current,
       [name]: value,
@@ -47,6 +100,10 @@ export function ContactSection({ details }: ContactSectionProps) {
         `Phone: ${form.phone || '-'}`,
         `Email: ${form.email || '-'}`,
         `Place: ${form.place || '-'}`,
+        `Length: ${form.length || '-'}`,
+        `Width: ${form.width || '-'}`,
+        `Area: ${area ?? '-'}`,
+        `Estimated price: ${estimatedPrice !== null ? `$${estimatedPrice.toLocaleString('en-US')}` : 'Unavailable'}`,
         '',
         'Message:',
         form.message || '-',
@@ -138,6 +195,66 @@ export function ContactSection({ details }: ContactSectionProps) {
                 value={form.place}
               />
             </label>
+
+            <div className={styles.calcFieldsRow}>
+              <label className={`${styles.field} ${styles.calcField}`}>
+                <span className={styles.fieldLabel}>
+                  <span>Length of screens</span>
+                  <span className={styles.calcHelp}>
+                    <button
+                      aria-describedby="contact-estimate-tooltip"
+                      aria-label="Estimate info"
+                      className={styles.calcHelpButton}
+                      type="button"
+                    >
+                      i
+                    </button>
+                    <span className={styles.calcTooltip} id="contact-estimate-tooltip" role="tooltip">
+                      <strong className={styles.calcTooltipTitle}>See your estimate before sending</strong>
+                      <span>Enter length and width in whole numbers.</span>
+                    </span>
+                  </span>
+                </span>
+                <input
+                  inputMode="numeric"
+                  min="1"
+                  name="length"
+                  onChange={handleChange}
+                  pattern="[0-9]*"
+                  placeholder="Length"
+                  required
+                  step="1"
+                  type="number"
+                  value={form.length}
+                />
+              </label>
+
+              <label className={`${styles.field} ${styles.calcField}`}>
+                <span>Width</span>
+                <input
+                  inputMode="numeric"
+                  min="1"
+                  name="width"
+                  onChange={handleChange}
+                  pattern="[0-9]*"
+                  placeholder="Width"
+                  required
+                  step="1"
+                  type="number"
+                  value={form.width}
+                />
+              </label>
+
+              <div
+                className={`${styles.estimateBox} ${styles.estimateBoxCompact} ${
+                  estimatedPrice === null ? styles.estimateBoxMuted : ''
+                }`.trim()}
+              >
+                <span className={styles.estimateLabel}>Estimated price</span>
+                <strong className={styles.estimateValue}>{estimateTitle}</strong>
+                <span className={styles.estimateCaption}>{estimateCaption}</span>
+              </div>
+            </div>
 
             <label className={`${styles.field} ${styles.fieldFull}`}>
               <span>Message</span>

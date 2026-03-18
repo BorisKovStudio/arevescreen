@@ -76,3 +76,14 @@ model FaqEntry {
 
   @@index([sortOrder, createdAt])
 }
+
+model CalcTier {
+  id           String   @id @default(cuid())
+  minSqft      Int
+  maxSqft      Int
+  pricePerSqft Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([minSqft, maxSqft, createdAt])
+}

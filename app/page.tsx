@@ -20,17 +20,19 @@ import {
   socialLinks,
   technologyItems,
 } from '@/data/siteContent';
+import { getCalcTiers } from '@/lib/calc';
 import { getFaqItems } from '@/lib/faqs';
 import { getFabricOptions } from '@/lib/fabric-options';
 import { getHeroSlideUrls } from '@/lib/hero-slides';
 import { getProjects } from '@/lib/projects';
 
 export default async function HomePage() {
-  const [heroSlides, fabricOptions, projects, faqItems] = await Promise.all([
+  const [heroSlides, fabricOptions, projects, faqItems, calcTiers] = await Promise.all([
     getHeroSlideUrls(),
     getFabricOptions(),
     getProjects(),
     getFaqItems(),
+    getCalcTiers(),
   ]);
 
   return (
@@ -56,7 +58,7 @@ export default async function HomePage() {
         <CertificatesSection items={certificates} />
         <ProjectsSection items={projects} />
         <FaqSection image={featureImages.faq} items={faqItems} />
-        <ContactSection details={contactDetails} />
+        <ContactSection calcTiers={calcTiers} details={contactDetails} />
       </main>
       <SiteFooter details={contactDetails} socialLinks={socialLinks} />
     </>

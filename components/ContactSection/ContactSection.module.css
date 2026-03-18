@@ -88,7 +88,7 @@
   gap: 8px;
 }
 
-.field span {
+.field > span {
   color: var(--ink);
   font-family: var(--font-display);
   font-size: 20px;
@@ -98,6 +98,129 @@
 
 .fieldFull {
   grid-column: 1 / -1;
+}
+
+.fieldLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.calcFieldsRow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(240px, 0.82fr);
+  gap: 16px;
+  align-items: end;
+}
+
+.calcField {
+  align-self: end;
+}
+
+.calcHelp {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.calcHelpButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--panel);
+  cursor: help;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.calcHelpButton:focus-visible {
+  outline: 2px solid rgba(49, 55, 63, 0.28);
+  outline-offset: 2px;
+}
+
+.calcTooltip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 12px);
+  width: 230px;
+  padding: 10px 12px;
+  border: 1px solid rgba(49, 55, 63, 0.18);
+  background: var(--panel);
+  box-shadow: 0 18px 40px rgba(23, 19, 17, 0.12);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(0, 6px);
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 2;
+  display: grid;
+  gap: 4px;
+}
+
+.calcTooltipTitle {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.calcHelp:hover .calcTooltip,
+.calcHelp:focus-within .calcTooltip {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.estimateBox {
+  padding: 14px 16px;
+  border: 1px solid rgba(49, 55, 63, 0.18);
+  background: var(--panel);
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  min-height: 100%;
+}
+
+.estimateBoxMuted {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.estimateBoxCompact {
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.estimateLabel {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.estimateValue {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 27px;
+  line-height: 1.02;
+}
+
+.estimateCaption {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .field input,
@@ -162,5 +285,25 @@
   .heading,
   .formHeader h3 {
     font-size: 30px;
+  }
+
+  .calcFieldsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldLabel {
+    width: auto;
+  }
+
+  .calcTooltip {
+    left: 0;
+    bottom: calc(100% + 10px);
+    width: min(230px, calc(100vw - 64px));
+    transform: translate(0, 6px);
+  }
+
+  .calcHelp:hover .calcTooltip,
+  .calcHelp:focus-within .calcTooltip {
+    transform: translate(0, 0);
   }
 }

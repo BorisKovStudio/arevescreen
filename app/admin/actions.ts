@@ -21,6 +21,7 @@ import {
   validateHeroSlideFile,
   validateProjectImageFile,
 } from '@/lib/blob';
+import { CALC_CACHE_TAG } from '@/lib/calc';
 import { FABRIC_OPTIONS_CACHE_TAG } from '@/lib/fabric-options';
 import {
   FAQS_CACHE_TAG,
@@ -120,6 +121,60 @@ function validateFaqFields(question: string, answer: string) {
   }
 
   return null;
+}
+
+type IntegerFieldResult = { value: number } | { error: string };
+type CalcTierValidationResult =
+  | {
+      minSqft: number;
+      maxSqft: number;
+      pricePerSqft: number;
+    }
+  | {
+      error: string;
+    };
+
+function parsePositiveIntegerField(value: FormDataEntryValue | null, label: string): IntegerFieldResult {
+  if (typeof value !== 'string' || !/^\d+$/.test(value.trim())) {
+    return { error: `${label} must be a whole number.` };
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return { error: `${label} must be greater than 0.` };
+  }
+
+  return { value: parsed };
+}
+
+function validateCalcTierFields(formData: FormData): CalcTierValidationResult {
+  const minSqftResult = parsePositiveIntegerField(formData.get('minSqft'), 'Min sqft');
+  if ('error' in minSqftResult) {
+    return { error: minSqftResult.error };
+  }
+
+  const maxSqftResult = parsePositiveIntegerField(formData.get('maxSqft'), 'Max sqft');
+  if ('error' in maxSqftResult) {
+    return { error: maxSqftResult.error };
+  }
+
+  const pricePerSqftResult = parsePositiveIntegerField(formData.get('pricePerSqft'), 'Price');
+  if ('error' in pricePerSqftResult) {
+    return { error: pricePerSqftResult.error };
+  }
+
+  if (minSqftResult.value >= maxSqftResult.value) {
+    return {
+      error: 'Max sqft must be greater than min sqft. The max value starts the next period.',
+    };
+  }
+
+  return {
+    minSqft: minSqftResult.value,
+    maxSqft: maxSqftResult.value,
+    pricePerSqft: pricePerSqftResult.value,
+  };
 }
 
 export async function signInAdminAction(formData: FormData) {
@@ -280,6 +335,24 @@ export async function createHeroSlideAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/slides');
   redirect('/admin/slides?success=Hero+slide+uploaded.');
+}
+
+export async function createCalcTierAction(formData: FormData) {
+  await requireAdminUser();
+
+  const validationResult = validateCalcTierFields(formData);
+  if ('error' in validationResult) {
+    redirectWithMessage('/admin/calc', 'error', validationResult.error);
+  }
+
+  await prisma.calcTier.create({
+    data: validationResult,
+  });
+
+  revalidateTag(CALC_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/calc');
+  redirect('/admin/calc?success=Calc+period+created.');
 }
 
 export async function createFabricOptionAction(formData: FormData) {
@@ -731,6 +804,40 @@ export async function updateHeroSlideAction(formData: FormData) {
   redirect('/admin/slides?success=Hero+slide+image+updated.');
 }
 
+export async function updateCalcTierAction(formData: FormData) {
+  await requireAdminUser();
+
+  const tierId = formData.get('tierId');
+
+  if (typeof tierId !== 'string' || !tierId) {
+    redirectWithMessage('/admin/calc', 'error', 'Missing calc period to update.');
+  }
+
+  const calcTier = await prisma.calcTier.findUnique({
+    where: { id: tierId },
+    select: { id: true },
+  });
+
+  if (!calcTier) {
+    redirectWithMessage('/admin/calc', 'error', 'Calc period not found.');
+  }
+
+  const validationResult = validateCalcTierFields(formData);
+  if ('error' in validationResult) {
+    redirectWithMessage('/admin/calc', 'error', validationResult.error);
+  }
+
+  await prisma.calcTier.update({
+    where: { id: calcTier.id },
+    data: validationResult,
+  });
+
+  revalidateTag(CALC_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/calc');
+  redirect('/admin/calc?success=Calc+period+updated.');
+}
+
 export async function updateFabricOptionAction(formData: FormData) {
   await requireAdminUser();
 
@@ -964,6 +1071,34 @@ export async function deleteHeroSlideAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/slides');
   redirect('/admin/slides?success=Hero+slide+deleted.');
+}
+
+export async function deleteCalcTierAction(formData: FormData) {
+  await requireAdminUser();
+
+  const tierId = formData.get('tierId');
+
+  if (typeof tierId !== 'string' || !tierId) {
+    redirectWithMessage('/admin/calc', 'error', 'Missing calc period to delete.');
+  }
+
+  const calcTier = await prisma.calcTier.findUnique({
+    where: { id: tierId },
+    select: { id: true },
+  });
+
+  if (!calcTier) {
+    redirectWithMessage('/admin/calc', 'error', 'Calc period not found.');
+  }
+
+  await prisma.calcTier.delete({
+    where: { id: calcTier.id },
+  });
+
+  revalidateTag(CALC_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/calc');
+  redirect('/admin/calc?success=Calc+period+deleted.');
 }
 
 export async function deleteFabricOptionAction(formData: FormData) {
