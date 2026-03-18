@@ -17,15 +17,17 @@ import {
   fabricOptions,
   featureImages,
   faqItems,
-  heroSlides,
   introPillars,
   navigation,
   projects,
   socialLinks,
   technologyItems,
 } from '@/data/siteContent';
+import { getHeroSlideUrls } from '@/lib/hero-slides';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const heroSlides = await getHeroSlideUrls();
+
   return (
     <>
       <SiteHeader

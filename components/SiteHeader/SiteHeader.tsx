@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { NavigationItem, SocialLink } from '@/data/siteContent';
+import { AdminHeaderLink } from '@/components/SiteHeader/AdminHeaderLink';
 import styles from './SiteHeader.module.css';
 
 type SiteHeaderProps = {
@@ -90,7 +91,7 @@ export function SiteHeader({ navigation: _navigation, socialLinks, phone, email 
   return (
     <header className={styles.header}>
       <div className={styles.bar}>
-        <div className={styles.spacer} aria-hidden="true" />
+        <AdminHeaderLink />
 
         <a className={styles.brand} href="/" aria-label="Areve Screen home">
           <Image alt="Areve Screen" className={styles.logo} height={140} priority src="/media/brand/logo.png" width={538} />

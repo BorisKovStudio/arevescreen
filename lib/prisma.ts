@@ -1,5 +1,6 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
+import { normalizeDatabaseUrl } from '@/lib/database-url';
 
 function getDatabaseUrl() {
   const databaseUrl =
@@ -9,7 +10,7 @@ function getDatabaseUrl() {
     throw new Error('DATABASE_URL, PRISMA_DATABASE_URL, or POSTGRES_URL is not configured.');
   }
 
-  return databaseUrl;
+  return normalizeDatabaseUrl(databaseUrl);
 }
 
 const adapter = new PrismaPg({
