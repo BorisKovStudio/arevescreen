@@ -15,21 +15,22 @@ import {
   contactDetails,
   differenceBullets,
   featureImages,
-  faqItems,
   introPillars,
   navigation,
   socialLinks,
   technologyItems,
 } from '@/data/siteContent';
+import { getFaqItems } from '@/lib/faqs';
 import { getFabricOptions } from '@/lib/fabric-options';
 import { getHeroSlideUrls } from '@/lib/hero-slides';
 import { getProjects } from '@/lib/projects';
 
 export default async function HomePage() {
-  const [heroSlides, fabricOptions, projects] = await Promise.all([
+  const [heroSlides, fabricOptions, projects, faqItems] = await Promise.all([
     getHeroSlideUrls(),
     getFabricOptions(),
     getProjects(),
+    getFaqItems(),
   ]);
 
   return (

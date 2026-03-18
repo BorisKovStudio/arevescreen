@@ -7,7 +7,7 @@ type AdminShellProps = {
   currentUser: {
     email: string;
   };
-  activeSection: 'users' | 'slides' | 'fabrics' | 'projects';
+  activeSection: 'users' | 'slides' | 'fabrics' | 'projects' | 'faqs';
   title: string;
   description?: string;
   children: ReactNode;
@@ -73,6 +73,14 @@ export function AdminShell({
           href="/admin/projects"
         >
           Projects
+        </Link>
+        <Link
+          className={`${styles.sectionMenuLink} ${
+            activeSection === 'faqs' ? styles.sectionMenuLinkActive : ''
+          }`}
+          href="/admin/faqs"
+        >
+          FAQ
         </Link>
       </nav>
 

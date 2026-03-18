@@ -91,32 +91,36 @@ export default async function AdminProjectsPage({
                 uploadDisabled ? styles.uploadLimitDisabled : ''
               }`.trim()}
             >
-              <form
-                action={createProjectAction}
-                className={`${styles.form} ${styles.heroUploadForm} ${styles.projectUploadForm}`}
-              >
-                <label className={styles.field}>
-                  <span>Title</span>
-                  <input
-                    defaultValue={`Project ${String(projects.length + 1).padStart(2, '0')}`}
-                    disabled={uploadDisabled}
-                    maxLength={PROJECT_TITLE_MAX_LENGTH}
-                    name="title"
-                    type="text"
-                  />
-                </label>
+              <form action={createProjectAction} className={`${styles.form} ${styles.projectUploadForm}`}>
+                <div className={styles.projectCreateTopRow}>
+                  <label className={styles.field}>
+                    <span>Title</span>
+                    <input
+                      defaultValue={`Project ${String(projects.length + 1).padStart(2, '0')}`}
+                      disabled={uploadDisabled}
+                      maxLength={PROJECT_TITLE_MAX_LENGTH}
+                      name="title"
+                      type="text"
+                    />
+                  </label>
 
-                <label className={styles.field}>
+                  <button className={styles.primaryButton} disabled={uploadDisabled} type="submit">
+                    Upload project
+                  </button>
+                </div>
+
+                <label className={`${styles.field} ${styles.projectDescriptionField}`}>
                   <span>Description</span>
                   <textarea
+                    className={styles.projectTextarea}
                     disabled={uploadDisabled}
                     maxLength={PROJECT_DESCRIPTION_MAX_LENGTH}
                     name="description"
-                    rows={4}
+                    rows={3}
                   />
                 </label>
 
-                <label className={styles.field}>
+                <label className={`${styles.field} ${styles.projectImageField}`}>
                   <span>Cover image</span>
                   <input
                     accept="image/jpeg,image/png,image/webp,image/avif"
@@ -125,10 +129,6 @@ export default async function AdminProjectsPage({
                     type="file"
                   />
                 </label>
-
-                <button className={styles.primaryButton} disabled={uploadDisabled} type="submit">
-                  Upload project
-                </button>
               </form>
 
               {projectsLimitReached ? (

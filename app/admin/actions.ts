@@ -22,6 +22,12 @@ import {
   validateProjectImageFile,
 } from '@/lib/blob';
 import { FABRIC_OPTIONS_CACHE_TAG } from '@/lib/fabric-options';
+import {
+  FAQS_CACHE_TAG,
+  FAQS_MAX_COUNT,
+  FAQ_ANSWER_MAX_LENGTH,
+  FAQ_QUESTION_MAX_LENGTH,
+} from '@/lib/faqs';
 import { HERO_SLIDES_CACHE_TAG } from '@/lib/hero-slides';
 import {
   PROJECT_DESCRIPTION_MAX_LENGTH,
@@ -91,6 +97,26 @@ function validateProjectFields(title: string, description: string) {
 
   if (description.length > PROJECT_DESCRIPTION_MAX_LENGTH) {
     return `Project description must be ${PROJECT_DESCRIPTION_MAX_LENGTH} characters or fewer.`;
+  }
+
+  return null;
+}
+
+function validateFaqFields(question: string, answer: string) {
+  if (!question) {
+    return 'Enter a question for the FAQ item.';
+  }
+
+  if (question.length > FAQ_QUESTION_MAX_LENGTH) {
+    return `FAQ question must be ${FAQ_QUESTION_MAX_LENGTH} characters or fewer.`;
+  }
+
+  if (!answer) {
+    return 'Enter an answer for the FAQ item.';
+  }
+
+  if (answer.length > FAQ_ANSWER_MAX_LENGTH) {
+    return `FAQ answer must be ${FAQ_ANSWER_MAX_LENGTH} characters or fewer.`;
   }
 
   return null;
@@ -361,6 +387,37 @@ export async function createProjectAction(formData: FormData) {
   redirect('/admin/projects?success=Project+uploaded.');
 }
 
+export async function createFaqEntryAction(formData: FormData) {
+  await requireAdminUser();
+
+  const question = getTrimmedFormValue(formData.get('question'));
+  const answer = getTrimmedFormValue(formData.get('answer'));
+  const validationError = validateFaqFields(question, answer);
+
+  if (validationError) {
+    redirectWithMessage('/admin/faqs', 'error', validationError);
+  }
+
+  const existingFaqCount = await prisma.faqEntry.count();
+
+  if (existingFaqCount >= FAQS_MAX_COUNT) {
+    redirectWithMessage('/admin/faqs', 'error', `FAQ limit reached. You can keep up to ${FAQS_MAX_COUNT} items.`);
+  }
+
+  await prisma.faqEntry.create({
+    data: {
+      question,
+      answer,
+      sortOrder: existingFaqCount,
+    },
+  });
+
+  revalidateTag(FAQS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/faqs');
+  redirect('/admin/faqs?success=FAQ+item+created.');
+}
+
 export async function moveHeroSlideAction(formData: FormData) {
   await requireAdminUser();
 
@@ -539,6 +596,66 @@ export async function moveProjectAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/projects');
   redirect('/admin/projects?success=Project+order+updated.');
+}
+
+export async function moveFaqEntryAction(formData: FormData) {
+  await requireAdminUser();
+
+  const faqId = formData.get('faqId');
+  const direction = formData.get('direction');
+
+  if (typeof faqId !== 'string' || !faqId) {
+    redirectWithMessage('/admin/faqs', 'error', 'Missing FAQ item to move.');
+  }
+
+  if (direction !== 'up' && direction !== 'down') {
+    redirectWithMessage('/admin/faqs', 'error', 'Invalid FAQ move request.');
+  }
+
+  const faqEntries = await prisma.faqEntry.findMany({
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    select: {
+      id: true,
+    },
+  });
+
+  const currentIndex = faqEntries.findIndex((entry) => entry.id === faqId);
+
+  if (currentIndex === -1) {
+    redirectWithMessage('/admin/faqs', 'error', 'FAQ item not found.');
+  }
+
+  const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+  if (nextIndex < 0 || nextIndex >= faqEntries.length) {
+    redirect('/admin/faqs');
+  }
+
+  const reorderedFaqEntries = faqEntries.slice();
+  [reorderedFaqEntries[currentIndex], reorderedFaqEntries[nextIndex]] = [
+    reorderedFaqEntries[nextIndex],
+    reorderedFaqEntries[currentIndex],
+  ];
+
+  try {
+    await prisma.$transaction(
+      reorderedFaqEntries.map((entry, index) =>
+        prisma.faqEntry.update({
+          where: { id: entry.id },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+  } catch {
+    redirectWithMessage('/admin/faqs', 'error', 'Unable to update FAQ order.');
+  }
+
+  revalidateTag(FAQS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/faqs');
+  redirect('/admin/faqs?success=FAQ+order+updated.');
 }
 
 export async function updateHeroSlideAction(formData: FormData) {
@@ -768,6 +885,48 @@ export async function updateProjectAction(formData: FormData) {
   redirect('/admin/projects?success=Project+updated.');
 }
 
+export async function updateFaqEntryAction(formData: FormData) {
+  await requireAdminUser();
+
+  const faqId = formData.get('faqId');
+
+  if (typeof faqId !== 'string' || !faqId) {
+    redirectWithMessage('/admin/faqs', 'error', 'Missing FAQ item to update.');
+  }
+
+  const faqEntry = await prisma.faqEntry.findUnique({
+    where: { id: faqId },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!faqEntry) {
+    redirectWithMessage('/admin/faqs', 'error', 'FAQ item not found.');
+  }
+
+  const question = getTrimmedFormValue(formData.get('question'));
+  const answer = getTrimmedFormValue(formData.get('answer'));
+  const validationError = validateFaqFields(question, answer);
+
+  if (validationError) {
+    redirectWithMessage('/admin/faqs', 'error', validationError);
+  }
+
+  await prisma.faqEntry.update({
+    where: { id: faqEntry.id },
+    data: {
+      question,
+      answer,
+    },
+  });
+
+  revalidateTag(FAQS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/faqs');
+  redirect('/admin/faqs?success=FAQ+item+updated.');
+}
+
 export async function deleteHeroSlideAction(formData: FormData) {
   await requireAdminUser();
 
@@ -886,4 +1045,34 @@ export async function deleteProjectAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/projects');
   redirect('/admin/projects?success=Project+deleted.');
+}
+
+export async function deleteFaqEntryAction(formData: FormData) {
+  await requireAdminUser();
+
+  const faqId = formData.get('faqId');
+
+  if (typeof faqId !== 'string' || !faqId) {
+    redirectWithMessage('/admin/faqs', 'error', 'Missing FAQ item to delete.');
+  }
+
+  const faqEntry = await prisma.faqEntry.findUnique({
+    where: { id: faqId },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!faqEntry) {
+    redirectWithMessage('/admin/faqs', 'error', 'FAQ item not found.');
+  }
+
+  await prisma.faqEntry.delete({
+    where: { id: faqEntry.id },
+  });
+
+  revalidateTag(FAQS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/faqs');
+  redirect('/admin/faqs?success=FAQ+item+deleted.');
 }

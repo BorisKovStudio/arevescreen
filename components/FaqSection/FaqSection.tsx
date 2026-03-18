@@ -34,7 +34,7 @@ export function FaqSection({ items, image }: FaqSectionProps) {
 
         <div className={styles.stack}>
           {items.map((item, index) => (
-            <details key={item.question} className={styles.item} open={openIndex === index}>
+            <details key={`${item.question}-${item.answer}`} className={styles.item} open={openIndex === index}>
               <summary
                 className={styles.summary}
                 onClick={(event) => {

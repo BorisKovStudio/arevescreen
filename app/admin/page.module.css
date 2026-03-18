@@ -355,7 +355,27 @@
 }
 
 .projectUploadForm {
-  grid-template-columns: minmax(180px, 240px) minmax(240px, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.projectCreateTopRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.projectDescriptionField,
+.projectImageField {
+  grid-column: 1 / -1;
+}
+
+.projectTextarea {
+  min-height: 120px;
+}
+
+.faqCreateForm {
+  gap: 12px;
 }
 
 .uploadLimitDisabled {
@@ -422,11 +442,25 @@
   margin-top: 24px;
 }
 
+.textItemsList {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
 .heroSlideCard {
   display: grid;
   grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
   gap: 20px;
   padding: 18px;
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: #fff;
+}
+
+.textItemCard {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
   border: 1px solid rgba(26, 26, 26, 0.08);
   background: #fff;
 }
@@ -455,6 +489,28 @@
   align-items: flex-start;
 }
 
+.textItemHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.faqQuestionTitle {
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.faqMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .heroSlideMeta {
   display: grid;
   justify-items: end;
@@ -474,8 +530,26 @@
   align-items: start;
 }
 
+.faqItemControls,
+.textItemControls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
 .heroMoveActions {
   display: contents;
+}
+
+.faqMoveActions {
+  display: contents;
+}
+
+.faqMoveActions form,
+.faqDeleteForm,
+.faqSaveAction {
+  display: flex;
 }
 
 .heroMoveActions form {
@@ -484,6 +558,59 @@
 
 .heroSlideForm {
   margin-top: 0;
+}
+
+.textItemForm {
+  gap: 12px;
+  margin-top: 0;
+}
+
+.faqCreateTopRow,
+.faqEditTopRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.faqAnswerField {
+  grid-column: 1 / -1;
+}
+
+.faqAnswerDetails {
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: #faf7f3;
+}
+
+.faqAnswerSummary {
+  padding: 12px 14px;
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faqAnswerSummary::-webkit-details-marker {
+  display: none;
+}
+
+.faqAnswerSummary::after {
+  content: '+';
+  float: right;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.faqAnswerDetails[open] .faqAnswerSummary::after {
+  content: '−';
+}
+
+.faqAnswerDetails[open] .faqAnswerField {
+  padding: 0 14px 14px;
+}
+
+.faqTextarea {
+  min-height: 96px;
 }
 
 .projectTextFields {
@@ -543,12 +670,20 @@
 }
 
 .heroSlideActions,
+.textItemActions,
 .heroDeleteForm {
   display: flex;
 }
 
+.faqMoveActions button,
+.faqDeleteForm button,
+.faqSaveAction button {
+  width: 100%;
+}
+
 .heroMoveActions button,
 .heroDeleteForm button,
+.textItemActions button,
 .heroSlideActions button {
   display: inline-flex;
   width: 100%;
@@ -647,6 +782,10 @@
   .heroUploadForm,
   .fabricUploadForm,
   .projectUploadForm,
+  .projectCreateTopRow,
+  .faqCreateForm,
+  .faqCreateTopRow,
+  .faqEditTopRow,
   .heroSlideReplaceRow,
   .heroSlideControls,
   .projectTextFields,
@@ -659,5 +798,21 @@
 
   .heroSlideMeta {
     justify-items: start;
+  }
+
+  .faqMetaRow {
+    justify-content: flex-start;
+  }
+
+  .textItemHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 640px) {
+  .faqItemControls,
+  .textItemControls {
+    grid-template-columns: 1fr;
   }
 }
