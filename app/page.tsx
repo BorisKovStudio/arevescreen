@@ -4,6 +4,7 @@ import { DifferenceSection } from '@/components/DifferenceSection/DifferenceSect
 import { FabricSection } from '@/components/FabricSection/FabricSection';
 import { FaqSection } from '@/components/FaqSection/FaqSection';
 import { HeroSection } from '@/components/HeroSection/HeroSection';
+import { InsectScreensSection } from '@/components/InsectScreensSection/InsectScreensSection';
 import { IntroSection } from '@/components/IntroSection/IntroSection';
 import { ProjectsSection } from '@/components/ProjectsSection/ProjectsSection';
 import { SiteFooter } from '@/components/SiteFooter/SiteFooter';
@@ -15,6 +16,7 @@ import {
   contactDetails,
   differenceBullets,
   featureImages,
+  insectScreenContent,
   introPillars,
   navigation,
   socialLinks,
@@ -55,6 +57,17 @@ export default async function HomePage() {
         <DifferenceSection backgroundImage={featureImages.allSeasons} bullets={differenceBullets} />
         <TechnologySection items={technologyItems} />
         <FabricSection fabricOptions={fabricOptions} highlightImage={featureImages.fabrics} />
+        <InsectScreensSection
+          applications={insectScreenContent.applications}
+          body={insectScreenContent.body}
+          features={insectScreenContent.features}
+          heading={insectScreenContent.heading}
+          image={insectScreenContent.image}
+          kicker={insectScreenContent.kicker}
+          lead={insectScreenContent.lead}
+          video={insectScreenContent.video}
+          videoPoster={insectScreenContent.videoPoster}
+        />
         <CertificatesSection items={certificates} />
         <ProjectsSection items={projects} />
         <FaqSection image={featureImages.faq} items={faqItems} />

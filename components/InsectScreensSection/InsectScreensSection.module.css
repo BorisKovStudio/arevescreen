@@ -1,0 +1,277 @@
+.section {
+  padding: 6.5em 1em;
+  background:
+    linear-gradient(180deg, rgba(244, 240, 234, 0.72) 0%, rgba(255, 255, 255, 0.96) 58%, #ffffff 100%);
+  overflow: hidden;
+}
+
+.inner {
+  width: min(var(--max-width), 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 42px;
+  align-items: center;
+}
+
+.copy {
+  display: grid;
+  align-content: center;
+  gap: 20px;
+}
+
+.kicker {
+  color: var(--accent-deep);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.heading {
+  max-width: 620px;
+  font-size: 57px;
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -2px;
+}
+
+.lead,
+.body,
+.featureCard p,
+.noteCard p {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.lead {
+  max-width: 640px;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.body {
+  max-width: 640px;
+}
+
+.applicationRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.applicationPill {
+  padding: 10px 14px;
+  border: 1px solid rgba(49, 55, 63, 0.18);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.featureCard {
+  display: grid;
+  gap: 10px;
+  padding: 18px 18px 20px;
+  border-top: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-soft);
+}
+
+.featureCard h3 {
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.button {
+  width: fit-content;
+  padding: 0.9em 2em;
+  border: 2px solid var(--accent);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.button:hover {
+  background: var(--accent);
+  color: var(--panel);
+}
+
+.mediaColumn {
+  position: relative;
+  min-height: 720px;
+}
+
+.mediaBackdrop {
+  position: absolute;
+  top: 56px;
+  left: 72px;
+  right: 0;
+  bottom: 52px;
+  background: transparent;
+}
+
+.videoFrame,
+.imageFrame {
+  position: absolute;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.videoFrame {
+  top: 110px;
+  left: 0;
+  z-index: 1;
+  width: min(100%, 320px);
+  height: 548px;
+  padding: 0;
+  background: transparent;
+}
+
+.imageFrame {
+  top: 0;
+  right: 36px;
+  z-index: 2;
+  width: min(100%, 360px);
+  height: 520px;
+}
+
+.video,
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noteCard {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: grid;
+  gap: 10px;
+  width: 280px;
+  padding: 22px 24px;
+  border-left: 3px solid var(--accent);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-card);
+}
+
+.noteEyebrow {
+  color: var(--accent-deep);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.noteCard h3 {
+  font-size: 31px;
+  line-height: 1.08;
+}
+
+@media (max-width: 1100px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .heading {
+    font-size: 42px;
+  }
+
+  .mediaColumn {
+    min-height: 640px;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .section {
+    padding: 3.2em 1em;
+  }
+
+  .heading {
+    font-size: 30px;
+    letter-spacing: -1px;
+  }
+
+  .lead {
+    font-size: 17px;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  .mediaColumn {
+    min-height: 0;
+    display: grid;
+    gap: 18px;
+  }
+
+  .mediaBackdrop,
+  .noteCard {
+    position: static;
+  }
+
+  .videoFrame,
+  .imageFrame {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+  }
+
+  .mediaBackdrop {
+    display: none;
+  }
+
+  .videoFrame,
+  .imageFrame {
+    width: 100%;
+    height: auto;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .videoFrame {
+    padding: 12px;
+  }
+
+  .videoFrame::before,
+  .imageFrame::before {
+    content: '';
+    display: block;
+    width: 100%;
+    padding-top: 140%;
+  }
+
+  .video,
+  .image {
+    position: absolute;
+    inset: 0;
+  }
+
+  .noteCard {
+    width: 100%;
+    padding: 18px 20px;
+  }
+
+  .noteCard h3 {
+    font-size: 24px;
+  }
+}

@@ -25,6 +25,11 @@ export type TechnologyItem = {
   image: string;
 };
 
+export type InsectScreenFeature = {
+  title: string;
+  description: string;
+};
+
 export type FabricOption = {
   label: string;
   image: string;
@@ -113,6 +118,35 @@ export const introPillars: IntroPillar[] = [
     description: 'Precision engineering meets creative design',
   },
 ];
+
+export const insectScreenContent = {
+  kicker: 'Insect Screens',
+  heading: 'Fresh air for oversized openings',
+  lead:
+    'Designed for large-format patio doors and glass walls, these retractable insect screens help keep the breeze moving while reducing bugs and everyday debris.',
+  body:
+    'The setup is especially well suited for folding systems, multi-panel sliders, and lift-and-slide openings where the screen needs to feel architectural, easy to operate, and unobtrusive when not in use.',
+  image: '/media/insect-screens/IMG_0110-site.jpeg',
+  video: '/media/insect-screens/areve-video.MOV',
+  videoPoster: '/media/insect-screens/IMG_0110-site.jpeg',
+  applications: [
+    'Oversized patio doors',
+    'Folding glass walls',
+    'Stacking and lift-slide systems',
+  ],
+  features: [
+    {
+      title: 'Large-opening fit',
+      description:
+        'Planned for wide door systems and full-height openings where a standard insect screen would feel undersized.',
+    },
+    {
+      title: 'Smooth everyday access',
+      description:
+        'Built for daily traffic with a clean glide and stopping behavior that feels natural around active indoor-outdoor spaces.',
+    },
+  ] satisfies InsectScreenFeature[],
+};
 
 export const differenceBullets: string[] = [
   'Our screens: zipper-free design.',
