@@ -38,3 +38,15 @@ model HeroSlide {
 
   @@index([sortOrder, createdAt])
 }
+
+model FabricOption {
+  id           String   @id @default(cuid())
+  label        String
+  imageUrl     String
+  blobPathname String
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([sortOrder, createdAt])
+}

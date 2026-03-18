@@ -1,7 +1,8 @@
 import { del, put } from '@vercel/blob';
 
 const HERO_SLIDES_PREFIX = 'hero-slides';
-const HERO_SLIDE_MAX_BYTES = 10 * 1024 * 1024;
+const FABRIC_OPTIONS_PREFIX = 'fabric-options';
+const MANAGED_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 const ALLOWED_HERO_SLIDE_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -19,20 +20,42 @@ export function isBlobConfigured() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
 }
 
-export function validateHeroSlideFile(file: File) {
+function validateManagedImageFile(file: File, subject: string) {
   if (!file || file.size === 0) {
-    return 'Choose an image file to upload.';
+    return `Choose an image file for the ${subject}.`;
   }
 
   if (!ALLOWED_HERO_SLIDE_TYPES.has(file.type)) {
-    return 'Hero slides must be JPG, PNG, WebP, or AVIF.';
+    return `${subject} images must be JPG, PNG, WebP, or AVIF.`;
   }
 
-  if (file.size > HERO_SLIDE_MAX_BYTES) {
-    return 'Hero slide image must be 10 MB or smaller.';
+  if (file.size > MANAGED_IMAGE_MAX_BYTES) {
+    return `${subject} image must be 10 MB or smaller.`;
   }
 
   return null;
+}
+
+async function uploadImageToBlob(pathPrefix: string, file: File) {
+  if (!isBlobConfigured()) {
+    throw new Error('BLOB_READ_WRITE_TOKEN is not configured.');
+  }
+
+  const normalizedFilename = normalizeFilename(file.name);
+
+  return put(`${pathPrefix}/${normalizedFilename}`, file, {
+    access: 'public',
+    addRandomSuffix: true,
+    contentType: file.type,
+  });
+}
+
+export function validateHeroSlideFile(file: File) {
+  return validateManagedImageFile(file, 'hero slide');
+}
+
+export function validateFabricOptionFile(file: File) {
+  return validateManagedImageFile(file, 'fabric option');
 }
 
 export async function uploadHeroSlideToBlob(file: File) {
@@ -42,17 +65,17 @@ export async function uploadHeroSlideToBlob(file: File) {
     throw new Error(validationError);
   }
 
-  if (!isBlobConfigured()) {
-    throw new Error('BLOB_READ_WRITE_TOKEN is not configured.');
+  return uploadImageToBlob(HERO_SLIDES_PREFIX, file);
+}
+
+export async function uploadFabricOptionToBlob(file: File) {
+  const validationError = validateFabricOptionFile(file);
+
+  if (validationError) {
+    throw new Error(validationError);
   }
 
-  const normalizedFilename = normalizeFilename(file.name);
-
-  return put(`${HERO_SLIDES_PREFIX}/${normalizedFilename}`, file, {
-    access: 'public',
-    addRandomSuffix: true,
-    contentType: file.type,
-  });
+  return uploadImageToBlob(FABRIC_OPTIONS_PREFIX, file);
 }
 
 export async function deleteBlobIfPresent(urlOrPathname: string | null | undefined) {

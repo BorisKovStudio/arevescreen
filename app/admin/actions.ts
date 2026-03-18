@@ -11,7 +11,15 @@ import {
   hashPassword,
   verifyPassword,
 } from '@/lib/auth';
-import { deleteBlobIfPresent, isBlobConfigured, uploadHeroSlideToBlob, validateHeroSlideFile } from '@/lib/blob';
+import {
+  deleteBlobIfPresent,
+  isBlobConfigured,
+  uploadFabricOptionToBlob,
+  uploadHeroSlideToBlob,
+  validateFabricOptionFile,
+  validateHeroSlideFile,
+} from '@/lib/blob';
+import { FABRIC_OPTIONS_CACHE_TAG } from '@/lib/fabric-options';
 import { HERO_SLIDES_CACHE_TAG } from '@/lib/hero-slides';
 import { prisma } from '@/lib/prisma';
 
@@ -54,6 +62,10 @@ function parseSortOrder(value: FormDataEntryValue | null, fallback: number) {
   }
 
   return parsed;
+}
+
+function getTrimmedFormValue(value: FormDataEntryValue | null) {
+  return typeof value === 'string' ? value.trim() : '';
 }
 
 export async function signInAdminAction(formData: FormData) {
@@ -216,6 +228,53 @@ export async function createHeroSlideAction(formData: FormData) {
   redirect('/admin/slides?success=Hero+slide+uploaded.');
 }
 
+export async function createFabricOptionAction(formData: FormData) {
+  await requireAdminUser();
+
+  if (!isBlobConfigured()) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Set BLOB_READ_WRITE_TOKEN before uploading fabric options.');
+  }
+
+  const label = getTrimmedFormValue(formData.get('label'));
+  const image = formData.get('image');
+
+  if (!label) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Enter a label for the fabric option.');
+  }
+
+  if (!(image instanceof File) || image.size === 0) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Choose an image file for the fabric option.');
+  }
+
+  const validationError = validateFabricOptionFile(image);
+
+  if (validationError) {
+    redirectWithMessage('/admin/fabrics', 'error', validationError);
+  }
+
+  const defaultOrder = await prisma.fabricOption.count();
+
+  try {
+    const blob = await uploadFabricOptionToBlob(image);
+
+    await prisma.fabricOption.create({
+      data: {
+        label,
+        imageUrl: blob.url,
+        blobPathname: blob.pathname,
+        sortOrder: defaultOrder,
+      },
+    });
+  } catch (error) {
+    redirectWithMessage('/admin/fabrics', 'error', getErrorMessage(error, 'Unable to upload the fabric option.'));
+  }
+
+  revalidateTag(FABRIC_OPTIONS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/fabrics');
+  redirect('/admin/fabrics?success=Fabric+option+uploaded.');
+}
+
 export async function moveHeroSlideAction(formData: FormData) {
   await requireAdminUser();
 
@@ -274,6 +333,66 @@ export async function moveHeroSlideAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/slides');
   redirect('/admin/slides?success=Slide+order+updated.');
+}
+
+export async function moveFabricOptionAction(formData: FormData) {
+  await requireAdminUser();
+
+  const optionId = formData.get('optionId');
+  const direction = formData.get('direction');
+
+  if (typeof optionId !== 'string' || !optionId) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Missing fabric option to move.');
+  }
+
+  if (direction !== 'up' && direction !== 'down') {
+    redirectWithMessage('/admin/fabrics', 'error', 'Invalid fabric option move request.');
+  }
+
+  const options = await prisma.fabricOption.findMany({
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    select: {
+      id: true,
+    },
+  });
+
+  const currentIndex = options.findIndex((option) => option.id === optionId);
+
+  if (currentIndex === -1) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Fabric option not found.');
+  }
+
+  const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+  if (nextIndex < 0 || nextIndex >= options.length) {
+    redirect('/admin/fabrics');
+  }
+
+  const reorderedOptions = options.slice();
+  [reorderedOptions[currentIndex], reorderedOptions[nextIndex]] = [
+    reorderedOptions[nextIndex],
+    reorderedOptions[currentIndex],
+  ];
+
+  try {
+    await prisma.$transaction(
+      reorderedOptions.map((option, index) =>
+        prisma.fabricOption.update({
+          where: { id: option.id },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+  } catch {
+    redirectWithMessage('/admin/fabrics', 'error', 'Unable to update fabric option order.');
+  }
+
+  revalidateTag(FABRIC_OPTIONS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/fabrics');
+  redirect('/admin/fabrics?success=Fabric+order+updated.');
 }
 
 export async function updateHeroSlideAction(formData: FormData) {
@@ -349,6 +468,82 @@ export async function updateHeroSlideAction(formData: FormData) {
   redirect('/admin/slides?success=Hero+slide+image+updated.');
 }
 
+export async function updateFabricOptionAction(formData: FormData) {
+  await requireAdminUser();
+
+  if (!isBlobConfigured()) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Set BLOB_READ_WRITE_TOKEN before updating fabric options.');
+  }
+
+  const optionId = formData.get('optionId');
+
+  if (typeof optionId !== 'string' || !optionId) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Missing fabric option to update.');
+  }
+
+  const option = await prisma.fabricOption.findUnique({
+    where: { id: optionId },
+    select: {
+      id: true,
+      label: true,
+      imageUrl: true,
+      blobPathname: true,
+    },
+  });
+
+  if (!option) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Fabric option not found.');
+  }
+
+  const label = getTrimmedFormValue(formData.get('label'));
+
+  if (!label) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Enter a label for the fabric option.');
+  }
+
+  const image = formData.get('image');
+  const hasReplacementImage = image instanceof File && image.size > 0;
+
+  let nextImageUrl = option.imageUrl;
+  let nextBlobPathname = option.blobPathname;
+
+  if (hasReplacementImage) {
+    const validationError = validateFabricOptionFile(image);
+
+    if (validationError) {
+      redirectWithMessage('/admin/fabrics', 'error', validationError);
+    }
+
+    try {
+      const blob = await uploadFabricOptionToBlob(image);
+      nextImageUrl = blob.url;
+      nextBlobPathname = blob.pathname;
+    } catch (error) {
+      redirectWithMessage('/admin/fabrics', 'error', getErrorMessage(error, 'Unable to replace the fabric option image.'));
+    }
+  }
+
+  await prisma.fabricOption.update({
+    where: { id: option.id },
+    data: {
+      label,
+      imageUrl: nextImageUrl,
+      blobPathname: nextBlobPathname,
+    },
+  });
+
+  if (hasReplacementImage && option.blobPathname !== nextBlobPathname) {
+    try {
+      await deleteBlobIfPresent(option.blobPathname);
+    } catch {}
+  }
+
+  revalidateTag(FABRIC_OPTIONS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/fabrics');
+  redirect('/admin/fabrics?success=Fabric+option+updated.');
+}
+
 export async function deleteHeroSlideAction(formData: FormData) {
   await requireAdminUser();
 
@@ -386,4 +581,43 @@ export async function deleteHeroSlideAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/slides');
   redirect('/admin/slides?success=Hero+slide+deleted.');
+}
+
+export async function deleteFabricOptionAction(formData: FormData) {
+  await requireAdminUser();
+
+  if (!isBlobConfigured()) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Set BLOB_READ_WRITE_TOKEN before deleting fabric options.');
+  }
+
+  const optionId = formData.get('optionId');
+
+  if (typeof optionId !== 'string' || !optionId) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Missing fabric option to delete.');
+  }
+
+  const option = await prisma.fabricOption.findUnique({
+    where: { id: optionId },
+    select: {
+      id: true,
+      blobPathname: true,
+    },
+  });
+
+  if (!option) {
+    redirectWithMessage('/admin/fabrics', 'error', 'Fabric option not found.');
+  }
+
+  await prisma.fabricOption.delete({
+    where: { id: option.id },
+  });
+
+  try {
+    await deleteBlobIfPresent(option.blobPathname);
+  } catch {}
+
+  revalidateTag(FABRIC_OPTIONS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/fabrics');
+  redirect('/admin/fabrics?success=Fabric+option+deleted.');
 }

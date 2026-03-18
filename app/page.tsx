@@ -14,7 +14,6 @@ import {
   certificates,
   contactDetails,
   differenceBullets,
-  fabricOptions,
   featureImages,
   faqItems,
   introPillars,
@@ -23,10 +22,11 @@ import {
   socialLinks,
   technologyItems,
 } from '@/data/siteContent';
+import { getFabricOptions } from '@/lib/fabric-options';
 import { getHeroSlideUrls } from '@/lib/hero-slides';
 
 export default async function HomePage() {
-  const heroSlides = await getHeroSlideUrls();
+  const [heroSlides, fabricOptions] = await Promise.all([getHeroSlideUrls(), getFabricOptions()]);
 
   return (
     <>

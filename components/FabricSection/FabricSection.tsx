@@ -195,7 +195,7 @@ export function FabricSection({ fabricOptions, highlightImage }: FabricSectionPr
             <div ref={railTrackRef} className={styles.railTrack}>
               <div ref={railGroupRef} className={styles.railGroup}>
                 {fabricOptions.map((option) => (
-                  <article key={`primary-${option.label}`} className={styles.swatch}>
+                  <article key={`primary-${option.label}-${option.image}`} className={styles.swatch}>
                     <div className={styles.swatchImageWrap}>
                       <Image
                         alt={option.label}
@@ -211,7 +211,7 @@ export function FabricSection({ fabricOptions, highlightImage }: FabricSectionPr
 
               <div aria-hidden="true" className={`${styles.railGroup} ${styles.railGroupDuplicate}`}>
                 {fabricOptions.map((option) => (
-                  <article key={`duplicate-${option.label}`} className={styles.swatch}>
+                  <article key={`duplicate-${option.label}-${option.image}`} className={styles.swatch}>
                     <div className={styles.swatchImageWrap}>
                       <Image
                         alt=""
