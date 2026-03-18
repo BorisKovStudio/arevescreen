@@ -18,15 +18,19 @@ import {
   faqItems,
   introPillars,
   navigation,
-  projects,
   socialLinks,
   technologyItems,
 } from '@/data/siteContent';
 import { getFabricOptions } from '@/lib/fabric-options';
 import { getHeroSlideUrls } from '@/lib/hero-slides';
+import { getProjects } from '@/lib/projects';
 
 export default async function HomePage() {
-  const [heroSlides, fabricOptions] = await Promise.all([getHeroSlideUrls(), getFabricOptions()]);
+  const [heroSlides, fabricOptions, projects] = await Promise.all([
+    getHeroSlideUrls(),
+    getFabricOptions(),
+    getProjects(),
+  ]);
 
   return (
     <>

@@ -50,3 +50,18 @@ model FabricOption {
 
   @@index([sortOrder, createdAt])
 }
+
+model Project {
+  id                 String   @id @default(cuid())
+  title              String
+  description        String
+  coverImageUrl      String
+  coverBlobPathname  String
+  galleryImageUrls   String[] @default([])
+  galleryBlobPathnames String[] @default([])
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([sortOrder, createdAt])
+}

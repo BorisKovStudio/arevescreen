@@ -2,6 +2,7 @@ import { del, put } from '@vercel/blob';
 
 const HERO_SLIDES_PREFIX = 'hero-slides';
 const FABRIC_OPTIONS_PREFIX = 'fabric-options';
+const PROJECTS_PREFIX = 'projects';
 const MANAGED_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 const ALLOWED_HERO_SLIDE_TYPES = new Set([
   'image/jpeg',
@@ -58,6 +59,10 @@ export function validateFabricOptionFile(file: File) {
   return validateManagedImageFile(file, 'fabric option');
 }
 
+export function validateProjectImageFile(file: File) {
+  return validateManagedImageFile(file, 'project');
+}
+
 export async function uploadHeroSlideToBlob(file: File) {
   const validationError = validateHeroSlideFile(file);
 
@@ -76,6 +81,16 @@ export async function uploadFabricOptionToBlob(file: File) {
   }
 
   return uploadImageToBlob(FABRIC_OPTIONS_PREFIX, file);
+}
+
+export async function uploadProjectImageToBlob(file: File) {
+  const validationError = validateProjectImageFile(file);
+
+  if (validationError) {
+    throw new Error(validationError);
+  }
+
+  return uploadImageToBlob(PROJECTS_PREFIX, file);
 }
 
 export async function deleteBlobIfPresent(urlOrPathname: string | null | undefined) {

@@ -119,7 +119,7 @@ export function ProjectsSection({ items }: ProjectsSectionProps) {
         <div className={styles.grid}>
           {items.map((item, index) => (
             <article
-              key={item.title}
+              key={`${item.title}-${item.cover}`}
               aria-label={`Open ${item.title} gallery`}
               className={styles.card}
               onClick={() => openGallery(index)}

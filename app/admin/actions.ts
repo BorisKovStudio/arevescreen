@@ -16,11 +16,19 @@ import {
   isBlobConfigured,
   uploadFabricOptionToBlob,
   uploadHeroSlideToBlob,
+  uploadProjectImageToBlob,
   validateFabricOptionFile,
   validateHeroSlideFile,
+  validateProjectImageFile,
 } from '@/lib/blob';
 import { FABRIC_OPTIONS_CACHE_TAG } from '@/lib/fabric-options';
 import { HERO_SLIDES_CACHE_TAG } from '@/lib/hero-slides';
+import {
+  PROJECT_DESCRIPTION_MAX_LENGTH,
+  PROJECTS_CACHE_TAG,
+  PROJECTS_MAX_COUNT,
+  PROJECT_TITLE_MAX_LENGTH,
+} from '@/lib/projects';
 import { prisma } from '@/lib/prisma';
 
 function redirectWithMessage(pathname: string, type: 'error' | 'success', message: string): never {
@@ -66,6 +74,26 @@ function parseSortOrder(value: FormDataEntryValue | null, fallback: number) {
 
 function getTrimmedFormValue(value: FormDataEntryValue | null) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function validateProjectFields(title: string, description: string) {
+  if (!title) {
+    return 'Enter a title for the project.';
+  }
+
+  if (title.length > PROJECT_TITLE_MAX_LENGTH) {
+    return `Project title must be ${PROJECT_TITLE_MAX_LENGTH} characters or fewer.`;
+  }
+
+  if (!description) {
+    return 'Enter a description for the project.';
+  }
+
+  if (description.length > PROJECT_DESCRIPTION_MAX_LENGTH) {
+    return `Project description must be ${PROJECT_DESCRIPTION_MAX_LENGTH} characters or fewer.`;
+  }
+
+  return null;
 }
 
 export async function signInAdminAction(formData: FormData) {
@@ -275,6 +303,64 @@ export async function createFabricOptionAction(formData: FormData) {
   redirect('/admin/fabrics?success=Fabric+option+uploaded.');
 }
 
+export async function createProjectAction(formData: FormData) {
+  await requireAdminUser();
+
+  if (!isBlobConfigured()) {
+    redirectWithMessage('/admin/projects', 'error', 'Set BLOB_READ_WRITE_TOKEN before uploading projects.');
+  }
+
+  const title = getTrimmedFormValue(formData.get('title'));
+  const description = getTrimmedFormValue(formData.get('description'));
+  const image = formData.get('image');
+  const validationError = validateProjectFields(title, description);
+
+  if (validationError) {
+    redirectWithMessage('/admin/projects', 'error', validationError);
+  }
+
+  if (!(image instanceof File) || image.size === 0) {
+    redirectWithMessage('/admin/projects', 'error', 'Choose an image file for the project.');
+  }
+
+  const imageValidationError = validateProjectImageFile(image);
+
+  if (imageValidationError) {
+    redirectWithMessage('/admin/projects', 'error', imageValidationError);
+  }
+
+  const existingProjectCount = await prisma.project.count();
+
+  if (existingProjectCount >= PROJECTS_MAX_COUNT) {
+    redirectWithMessage(
+      '/admin/projects',
+      'error',
+      `Project limit reached. You can keep up to ${PROJECTS_MAX_COUNT} projects.`,
+    );
+  }
+
+  try {
+    const blob = await uploadProjectImageToBlob(image);
+
+    await prisma.project.create({
+      data: {
+        title,
+        description,
+        coverImageUrl: blob.url,
+        coverBlobPathname: blob.pathname,
+        sortOrder: existingProjectCount,
+      },
+    });
+  } catch (error) {
+    redirectWithMessage('/admin/projects', 'error', getErrorMessage(error, 'Unable to upload the project.'));
+  }
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+uploaded.');
+}
+
 export async function moveHeroSlideAction(formData: FormData) {
   await requireAdminUser();
 
@@ -393,6 +479,66 @@ export async function moveFabricOptionAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/fabrics');
   redirect('/admin/fabrics?success=Fabric+order+updated.');
+}
+
+export async function moveProjectAction(formData: FormData) {
+  await requireAdminUser();
+
+  const projectId = formData.get('projectId');
+  const direction = formData.get('direction');
+
+  if (typeof projectId !== 'string' || !projectId) {
+    redirectWithMessage('/admin/projects', 'error', 'Missing project to move.');
+  }
+
+  if (direction !== 'up' && direction !== 'down') {
+    redirectWithMessage('/admin/projects', 'error', 'Invalid project move request.');
+  }
+
+  const projects = await prisma.project.findMany({
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    select: {
+      id: true,
+    },
+  });
+
+  const currentIndex = projects.findIndex((project) => project.id === projectId);
+
+  if (currentIndex === -1) {
+    redirectWithMessage('/admin/projects', 'error', 'Project not found.');
+  }
+
+  const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+  if (nextIndex < 0 || nextIndex >= projects.length) {
+    redirect('/admin/projects');
+  }
+
+  const reorderedProjects = projects.slice();
+  [reorderedProjects[currentIndex], reorderedProjects[nextIndex]] = [
+    reorderedProjects[nextIndex],
+    reorderedProjects[currentIndex],
+  ];
+
+  try {
+    await prisma.$transaction(
+      reorderedProjects.map((project, index) =>
+        prisma.project.update({
+          where: { id: project.id },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+  } catch {
+    redirectWithMessage('/admin/projects', 'error', 'Unable to update project order.');
+  }
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+order+updated.');
 }
 
 export async function updateHeroSlideAction(formData: FormData) {
@@ -544,6 +690,84 @@ export async function updateFabricOptionAction(formData: FormData) {
   redirect('/admin/fabrics?success=Fabric+option+updated.');
 }
 
+export async function updateProjectAction(formData: FormData) {
+  await requireAdminUser();
+
+  const projectId = formData.get('projectId');
+
+  if (typeof projectId !== 'string' || !projectId) {
+    redirectWithMessage('/admin/projects', 'error', 'Missing project to update.');
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      coverImageUrl: true,
+      coverBlobPathname: true,
+    },
+  });
+
+  if (!project) {
+    redirectWithMessage('/admin/projects', 'error', 'Project not found.');
+  }
+
+  const title = getTrimmedFormValue(formData.get('title'));
+  const description = getTrimmedFormValue(formData.get('description'));
+  const validationError = validateProjectFields(title, description);
+
+  if (validationError) {
+    redirectWithMessage('/admin/projects', 'error', validationError);
+  }
+
+  const image = formData.get('image');
+  const hasReplacementImage = image instanceof File && image.size > 0;
+
+  let nextCoverImageUrl = project.coverImageUrl;
+  let nextCoverBlobPathname = project.coverBlobPathname;
+
+  if (hasReplacementImage) {
+    if (!isBlobConfigured()) {
+      redirectWithMessage('/admin/projects', 'error', 'Set BLOB_READ_WRITE_TOKEN before updating project images.');
+    }
+
+    const imageValidationError = validateProjectImageFile(image);
+
+    if (imageValidationError) {
+      redirectWithMessage('/admin/projects', 'error', imageValidationError);
+    }
+
+    try {
+      const blob = await uploadProjectImageToBlob(image);
+      nextCoverImageUrl = blob.url;
+      nextCoverBlobPathname = blob.pathname;
+    } catch (error) {
+      redirectWithMessage('/admin/projects', 'error', getErrorMessage(error, 'Unable to replace the project image.'));
+    }
+  }
+
+  await prisma.project.update({
+    where: { id: project.id },
+    data: {
+      title,
+      description,
+      coverImageUrl: nextCoverImageUrl,
+      coverBlobPathname: nextCoverBlobPathname,
+    },
+  });
+
+  if (hasReplacementImage && project.coverBlobPathname !== nextCoverBlobPathname) {
+    try {
+      await deleteBlobIfPresent(project.coverBlobPathname);
+    } catch {}
+  }
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+updated.');
+}
+
 export async function deleteHeroSlideAction(formData: FormData) {
   await requireAdminUser();
 
@@ -620,4 +844,46 @@ export async function deleteFabricOptionAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/fabrics');
   redirect('/admin/fabrics?success=Fabric+option+deleted.');
+}
+
+export async function deleteProjectAction(formData: FormData) {
+  await requireAdminUser();
+
+  if (!isBlobConfigured()) {
+    redirectWithMessage('/admin/projects', 'error', 'Set BLOB_READ_WRITE_TOKEN before deleting projects.');
+  }
+
+  const projectId = formData.get('projectId');
+
+  if (typeof projectId !== 'string' || !projectId) {
+    redirectWithMessage('/admin/projects', 'error', 'Missing project to delete.');
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      coverBlobPathname: true,
+      galleryBlobPathnames: true,
+    },
+  });
+
+  if (!project) {
+    redirectWithMessage('/admin/projects', 'error', 'Project not found.');
+  }
+
+  await prisma.project.delete({
+    where: { id: project.id },
+  });
+
+  for (const blobPathname of [project.coverBlobPathname, ...project.galleryBlobPathnames]) {
+    try {
+      await deleteBlobIfPresent(blobPathname);
+    } catch {}
+  }
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+deleted.');
 }

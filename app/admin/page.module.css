@@ -185,6 +185,16 @@
   color: var(--ink);
 }
 
+.field textarea {
+  width: 100%;
+  min-height: 128px;
+  padding: 14px 16px;
+  border: 1px solid rgba(26, 26, 26, 0.12);
+  background: #fff;
+  color: var(--ink);
+  resize: vertical;
+}
+
 .field input[type='file'] {
   padding: 12px;
 }
@@ -198,12 +208,14 @@
 }
 
 .field input:focus,
+.field textarea:focus,
 .checkField input:focus {
   outline: 2px solid rgba(230, 108, 37, 0.35);
   outline-offset: 1px;
 }
 
-.field input:disabled {
+.field input:disabled,
+.field textarea:disabled {
   cursor: not-allowed;
   opacity: 0.7;
   background: #f5f3ef;
@@ -342,6 +354,61 @@
   grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) auto;
 }
 
+.projectUploadForm {
+  grid-template-columns: minmax(180px, 240px) minmax(240px, 1fr) minmax(0, 1fr) auto;
+}
+
+.uploadLimitDisabled {
+  opacity: 0.58;
+}
+
+.uploadLimitWrapper {
+  position: relative;
+}
+
+.uploadLimitDisabled,
+.uploadLimitDisabled * {
+  cursor: not-allowed;
+}
+
+.uploadLimitOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  border: 0;
+  background: transparent;
+}
+
+.uploadLimitTooltip {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 3;
+  max-width: 320px;
+  padding: 12px 14px;
+  background: rgba(26, 26, 26, 0.92);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.uploadLimitWrapper:hover .uploadLimitTooltip,
+.uploadLimitOverlay:focus + .uploadLimitTooltip,
+.uploadLimitOverlay:active + .uploadLimitTooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.uploadLimitOverlay:focus {
+  outline: 2px solid rgba(230, 108, 37, 0.35);
+  outline-offset: 1px;
+}
+
 .emptyState {
   margin-top: 24px;
   padding: 18px 20px;
@@ -417,6 +484,12 @@
 
 .heroSlideForm {
   margin-top: 0;
+}
+
+.projectTextFields {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: 16px;
 }
 
 .heroSlideReplace {
@@ -573,8 +646,10 @@
 
   .heroUploadForm,
   .fabricUploadForm,
+  .projectUploadForm,
   .heroSlideReplaceRow,
   .heroSlideControls,
+  .projectTextFields,
   .heroSlideFields,
   .heroSlideCard,
   .grid,
