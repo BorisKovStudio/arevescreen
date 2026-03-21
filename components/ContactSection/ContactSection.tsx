@@ -25,6 +25,11 @@ type ContactFormState = {
   message: string;
 };
 
+type SubmitState = {
+  tone: 'success' | 'error';
+  message: string;
+} | null;
+
 const initialState: ContactFormState = {
   name: '',
   phone: '',
@@ -50,7 +55,7 @@ function createDimensionOptions(maxValue: number) {
 
     return {
       value,
-      label: `FT ${value}`,
+      label: `${value} FT`,
     };
   });
 }
@@ -60,6 +65,8 @@ const widthOptions = createDimensionOptions(25);
 
 export function ContactSection({ details, calcTiers }: ContactSectionProps) {
   const [form, setForm] = useState<ContactFormState>(initialState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitState, setSubmitState] = useState<SubmitState>(null);
 
   const lengthValue = parsePositiveInteger(form.length);
   const widthValue = parsePositiveInteger(form.width);
@@ -98,35 +105,63 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
       return;
     }
 
+    if (submitState) {
+      setSubmitState(null);
+    }
+
     setForm((current) => ({
       ...current,
       [name]: value,
     }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const subject = encodeURIComponent(
-      `Quote request from ${form.name.trim() || 'Areve website visitor'}`,
-    );
-    const body = encodeURIComponent(
-      [
-        `Name: ${form.name || '-'}`,
-        `Phone: ${form.phone || '-'}`,
-        `Email: ${form.email || '-'}`,
-        `Place: ${form.place || '-'}`,
-        `Height: ${form.length || '-'}`,
-        `Width: ${form.width || '-'}`,
-        `Area: ${area ?? '-'}`,
-        `Estimated price: ${estimatedPrice !== null ? `$${estimatedPrice.toLocaleString('en-US')}` : 'Unavailable'}`,
-        '',
-        'Message:',
-        form.message || '-',
-      ].join('\n'),
-    );
+    setIsSubmitting(true);
+    setSubmitState(null);
 
-    window.location.href = `mailto:${details.email}?subject=${subject}&body=${body}`;
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          place: form.place,
+          width: form.width,
+          height: form.length,
+          message: form.message,
+        }),
+      });
+
+      const result = (await response.json().catch(() => null)) as { message?: string } | null;
+
+      if (!response.ok) {
+        setSubmitState({
+          tone: 'error',
+          message: result?.message || 'Unable to send the message right now.',
+        });
+        return;
+      }
+
+      setForm({ ...initialState });
+      setSubmitState({
+        tone: 'success',
+        message: result?.message || `Message sent to ${details.email}.`,
+      });
+    } catch (error) {
+      console.error('Contact form submission failed:', error);
+      setSubmitState({
+        tone: 'error',
+        message: 'Unable to send the message right now.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -289,9 +324,20 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
               />
             </label>
 
-            <button className={styles.submit} type="submit">
-              Send My Message
+            <button className={styles.submit} disabled={isSubmitting} type="submit">
+              {isSubmitting ? 'Sending...' : 'Send My Message'}
             </button>
+
+            {submitState ? (
+              <p
+                aria-live="polite"
+                className={`${styles.submitStatus} ${
+                  submitState.tone === 'success' ? styles.submitStatusSuccess : styles.submitStatusError
+                }`.trim()}
+              >
+                {submitState.message}
+              </p>
+            ) : null}
           </form>
         </div>
       </div>

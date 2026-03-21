@@ -262,9 +262,37 @@
   text-transform: uppercase;
 }
 
+.submit:disabled {
+  cursor: wait;
+  opacity: 0.78;
+}
+
 .submit:hover {
   background: var(--accent-deep);
   border-color: var(--accent-deep);
+}
+
+.submit:disabled:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.submitStatus {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.submitStatusSuccess {
+  background: rgba(68, 134, 91, 0.1);
+  color: #2d5b3c;
+}
+
+.submitStatusError {
+  background: rgba(180, 73, 60, 0.1);
+  color: #8a2d25;
 }
 
 @media (max-width: 920px) {
