@@ -42,7 +42,9 @@
 .railViewport {
   --rail-gap: clamp(1rem, 2.2vw, 2rem);
   --card-width: clamp(7.5rem, 10vw, 10.25rem);
+  --card-height: clamp(8.95rem, 11.9vw, 12.2rem);
   overflow: hidden;
+  min-height: calc(var(--card-height) + 1.5rem);
   padding: 0.75rem 0;
   opacity: 0;
   transform: translate3d(42px, 0, 0);
@@ -72,6 +74,7 @@
 
 .railTrack {
   display: flex;
+  align-items: stretch;
   width: max-content;
   will-change: transform;
   transform: translate3d(0, 0, 0);
@@ -79,6 +82,7 @@
 
 .railGroup {
   display: flex;
+  align-items: stretch;
   gap: var(--rail-gap);
   flex-shrink: 0;
   min-width: max-content;
@@ -87,11 +91,13 @@
 
 .card {
   flex: 0 0 var(--card-width);
+  width: var(--card-width);
 }
 
 .imageWrap {
   position: relative;
-  aspect-ratio: 0.84 / 1;
+  width: 100%;
+  height: var(--card-height);
   overflow: hidden;
   padding: 0.85rem;
   background: #fff;
@@ -119,6 +125,7 @@
   .railViewport {
     --rail-gap: 0.875rem;
     --card-width: clamp(6.75rem, 28vw, 8.5rem);
+    --card-height: clamp(8rem, 33.3vw, 10.125rem);
   }
 }
 
