@@ -517,6 +517,9 @@
 
 .heroSlidePreview {
   position: relative;
+  align-self: start;
+  aspect-ratio: 4 / 3;
+  width: 100%;
   min-height: 230px;
   overflow: hidden;
   background: #f3f1eb;
@@ -669,6 +672,106 @@
   gap: 16px;
 }
 
+.projectGallerySection {
+  display: grid;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.projectGalleryHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+}
+
+.projectGalleryTitle {
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.projectGalleryLead {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.projectGalleryUploadForm {
+  display: grid;
+  gap: 8px;
+  min-width: min(100%, 380px);
+}
+
+.projectGalleryUploadRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.projectGalleryEmpty {
+  padding: 14px 16px;
+  border: 1px dashed rgba(26, 26, 26, 0.14);
+  background: #faf7f3;
+  color: var(--muted);
+}
+
+.projectGalleryList {
+  display: grid;
+  gap: 12px;
+}
+
+.projectGalleryCard {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: #faf7f3;
+}
+
+.projectGalleryPreview {
+  position: relative;
+  align-self: start;
+  width: 100%;
+  min-height: 112px;
+  overflow: hidden;
+  background: #f3f1eb;
+}
+
+.projectGalleryImage {
+  object-fit: cover;
+}
+
+.projectGalleryBody {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.projectGalleryMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.projectGalleryLabel {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.projectGalleryControls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
 .heroSlideReplace {
   display: grid;
   gap: 8px;
@@ -725,6 +828,10 @@
   display: flex;
 }
 
+.projectGalleryControls form {
+  display: flex;
+}
+
 .faqMoveActions button,
 .faqDeleteForm button,
 .faqSaveAction button {
@@ -734,7 +841,8 @@
 .heroMoveActions button,
 .heroDeleteForm button,
 .textItemActions button,
-.heroSlideActions button {
+.heroSlideActions button,
+.projectGalleryControls button {
   display: inline-flex;
   width: 100%;
   justify-content: center;
@@ -840,9 +948,12 @@
   .faqEditTopRow,
   .heroSlideReplaceRow,
   .heroSlideControls,
+  .projectGalleryUploadRow,
+  .projectGalleryControls,
   .projectTextFields,
   .heroSlideFields,
   .heroSlideCard,
+  .projectGalleryCard,
   .grid,
   .noteGrid {
     grid-template-columns: 1fr;
@@ -854,6 +965,16 @@
 
   .faqMetaRow {
     justify-content: flex-start;
+  }
+
+  .projectGalleryHeader,
+  .projectGalleryMeta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .projectGalleryUploadForm {
+    min-width: 0;
   }
 
   .calcTierHeader {

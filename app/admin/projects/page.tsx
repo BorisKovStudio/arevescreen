@@ -2,9 +2,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { AdminShell } from '@/app/admin/AdminShell';
 import {
+  addProjectGalleryImageAction,
   createProjectAction,
+  deleteProjectGalleryImageAction,
   deleteProjectAction,
+  moveProjectGalleryImageAction,
   moveProjectAction,
+  setProjectCoverImageAction,
   updateProjectAction,
 } from '@/app/admin/actions';
 import { type SearchParams, getMessage, requireAdminPage } from '@/app/admin/admin.utils';
@@ -66,9 +70,10 @@ export default async function AdminProjectsPage({
             </div>
 
             <p className={styles.helperText}>
-              Manage project cover images, titles, and descriptions from admin. Titles are limited to {PROJECT_TITLE_MAX_LENGTH}{' '}
-              characters and descriptions to {PROJECT_DESCRIPTION_MAX_LENGTH} characters to preserve the card layout. You can
-              keep up to {PROJECTS_MAX_COUNT} projects.
+              Manage project cover images, gallery slides, titles, and descriptions from admin. Titles are limited to{' '}
+              {PROJECT_TITLE_MAX_LENGTH} characters and descriptions to {PROJECT_DESCRIPTION_MAX_LENGTH} characters to preserve
+              the card layout. Cover images stay on the project card, and gallery slides open inside the project viewer. You
+              can keep up to {PROJECTS_MAX_COUNT} projects.
             </p>
 
             {!blobConfigured ? (
@@ -174,6 +179,9 @@ export default async function AdminProjectsPage({
                         </div>
                         <div className={styles.heroSlideMeta}>
                           <span className={styles.counterPill}>Position {index + 1}</span>
+                          <span className={styles.counterPill}>
+                            {project.galleryImageUrls.length} gallery {project.galleryImageUrls.length === 1 ? 'slide' : 'slides'}
+                          </span>
                           <span className={styles.userMeta}>
                             Added {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(project.createdAt)}
                           </span>
@@ -255,6 +263,122 @@ export default async function AdminProjectsPage({
                           </div>
                         </div>
                       </form>
+
+                      <section className={styles.projectGallerySection}>
+                        <div className={styles.projectGalleryHeader}>
+                          <div>
+                            <p className={styles.cardEyebrow}>Project gallery</p>
+                            <h5 className={styles.projectGalleryTitle}>
+                              {project.galleryImageUrls.length === 0
+                                ? 'No gallery slides yet'
+                                : `${project.galleryImageUrls.length} gallery ${
+                                    project.galleryImageUrls.length === 1 ? 'slide' : 'slides'
+                                  }`}
+                            </h5>
+                            <p className={styles.projectGalleryLead}>
+                              Upload extra slides here, reorder them, or promote any slide to the cover image.
+                            </p>
+                          </div>
+
+                          <form action={addProjectGalleryImageAction} className={styles.projectGalleryUploadForm}>
+                            <input name="projectId" type="hidden" value={project.id} />
+
+                            <label className={styles.heroSlideReplaceLabel} htmlFor={`project-gallery-image-${project.id}`}>
+                              Add gallery slide
+                            </label>
+
+                            <div className={styles.projectGalleryUploadRow}>
+                              <input
+                                accept="image/jpeg,image/png,image/webp,image/avif"
+                                className={styles.heroSlideFileInput}
+                                disabled={!blobConfigured}
+                                id={`project-gallery-image-${project.id}`}
+                                name="image"
+                                type="file"
+                              />
+
+                              <button className={styles.secondaryButton} disabled={!blobConfigured} type="submit">
+                                Upload slide
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+
+                        {project.galleryImageUrls.length === 0 ? (
+                          <p className={styles.projectGalleryEmpty}>
+                            This project currently has only a cover image. Add gallery slides to show multiple images in the
+                            project viewer.
+                          </p>
+                        ) : (
+                          <div className={styles.projectGalleryList}>
+                            {project.galleryImageUrls.map((imageUrl, galleryIndex) => (
+                              <article className={styles.projectGalleryCard} key={`${project.id}-${imageUrl}-${galleryIndex}`}>
+                                <div className={styles.projectGalleryPreview}>
+                                  <Image
+                                    alt={`${project.title} gallery slide ${galleryIndex + 1}`}
+                                    className={styles.projectGalleryImage}
+                                    fill
+                                    sizes="(max-width: 920px) 100vw, 140px"
+                                    src={imageUrl}
+                                  />
+                                </div>
+
+                                <div className={styles.projectGalleryBody}>
+                                  <div className={styles.projectGalleryMeta}>
+                                    <div>
+                                      <p className={styles.projectGalleryLabel}>Gallery slide {galleryIndex + 1}</p>
+                                      <p className={styles.userMeta}>
+                                        Shows after the cover image in the project viewer.
+                                      </p>
+                                    </div>
+                                    <span className={styles.counterPill}>Position {galleryIndex + 1}</span>
+                                  </div>
+
+                                  <div className={styles.projectGalleryControls}>
+                                    <form action={moveProjectGalleryImageAction}>
+                                      <input name="projectId" type="hidden" value={project.id} />
+                                      <input name="galleryIndex" type="hidden" value={galleryIndex} />
+                                      <input name="direction" type="hidden" value="up" />
+                                      <button className={styles.secondaryButton} disabled={galleryIndex === 0} type="submit">
+                                        Move up
+                                      </button>
+                                    </form>
+
+                                    <form action={moveProjectGalleryImageAction}>
+                                      <input name="projectId" type="hidden" value={project.id} />
+                                      <input name="galleryIndex" type="hidden" value={galleryIndex} />
+                                      <input name="direction" type="hidden" value="down" />
+                                      <button
+                                        className={styles.secondaryButton}
+                                        disabled={galleryIndex === project.galleryImageUrls.length - 1}
+                                        type="submit"
+                                      >
+                                        Move down
+                                      </button>
+                                    </form>
+
+                                    <form action={setProjectCoverImageAction}>
+                                      <input name="projectId" type="hidden" value={project.id} />
+                                      <input name="galleryIndex" type="hidden" value={galleryIndex} />
+                                      <button className={styles.secondaryButton} type="submit">
+                                        Make cover
+                                      </button>
+                                    </form>
+
+                                    <form action={deleteProjectGalleryImageAction}>
+                                      <input name="projectId" type="hidden" value={project.id} />
+                                      <input name="galleryIndex" type="hidden" value={galleryIndex} />
+                                      <button className={styles.ghostButton} disabled={!blobConfigured} type="submit">
+                                        Delete slide
+                                      </button>
+                                    </form>
+                                  </div>
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        )}
+                      </section>
                     </div>
                   </article>
                 ))}

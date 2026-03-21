@@ -56,7 +56,7 @@ export default async function AdminCalcPage({
 
             <p className={styles.helperText}>
               Define price periods by <code>sqft</code>. The website calculates total estimate as{' '}
-              <code>length * width * price</code>. Only whole numbers are allowed in all calc fields.
+              <code>height * width * price</code>. Only whole numbers are allowed in all calc fields.
               {' '}Max sqft is exclusive, so <code>2-4</code> is used as <code>2-3.9</code> and <code>4</code> starts the next period.
             </p>
 

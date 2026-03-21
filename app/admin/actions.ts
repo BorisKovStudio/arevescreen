@@ -83,6 +83,34 @@ function getTrimmedFormValue(value: FormDataEntryValue | null) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+type NonNegativeIntegerFieldResult = { value: number } | { error: string };
+
+function parseNonNegativeIntegerField(
+  value: FormDataEntryValue | null,
+  label: string,
+): NonNegativeIntegerFieldResult {
+  if (typeof value !== 'string' || !/^\d+$/.test(value.trim())) {
+    return { error: `${label} is invalid.` };
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return { error: `${label} is invalid.` };
+  }
+
+  return { value: parsed };
+}
+
+function validateProjectGalleryState(project: {
+  galleryImageUrls: string[];
+  galleryBlobPathnames: string[];
+}) {
+  if (project.galleryImageUrls.length !== project.galleryBlobPathnames.length) {
+    redirectWithMessage('/admin/projects', 'error', 'Project gallery data is inconsistent.');
+  }
+}
+
 function validateProjectFields(title: string, description: string) {
   if (!title) {
     return 'Enter a title for the project.';
@@ -671,6 +699,82 @@ export async function moveProjectAction(formData: FormData) {
   redirect('/admin/projects?success=Project+order+updated.');
 }
 
+export async function moveProjectGalleryImageAction(formData: FormData) {
+  await requireAdminUser();
+
+  const projectId = formData.get('projectId');
+  const direction = formData.get('direction');
+  const galleryIndexResult = parseNonNegativeIntegerField(formData.get('galleryIndex'), 'Project gallery slide');
+
+  if (typeof projectId !== 'string' || !projectId) {
+    redirectWithMessage('/admin/projects', 'error', 'Missing project gallery slide to move.');
+  }
+
+  if ('error' in galleryIndexResult) {
+    redirectWithMessage('/admin/projects', 'error', galleryIndexResult.error);
+  }
+
+  if (direction !== 'up' && direction !== 'down') {
+    redirectWithMessage('/admin/projects', 'error', 'Invalid project gallery move request.');
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      galleryImageUrls: true,
+      galleryBlobPathnames: true,
+    },
+  });
+
+  if (!project) {
+    redirectWithMessage('/admin/projects', 'error', 'Project not found.');
+  }
+
+  validateProjectGalleryState(project);
+
+  const currentIndex = galleryIndexResult.value;
+
+  if (currentIndex >= project.galleryImageUrls.length) {
+    redirectWithMessage('/admin/projects', 'error', 'Project gallery slide not found.');
+  }
+
+  const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+  if (nextIndex < 0 || nextIndex >= project.galleryImageUrls.length) {
+    redirect('/admin/projects');
+  }
+
+  const reorderedImageUrls = project.galleryImageUrls.slice();
+  const reorderedBlobPathnames = project.galleryBlobPathnames.slice();
+
+  [reorderedImageUrls[currentIndex], reorderedImageUrls[nextIndex]] = [
+    reorderedImageUrls[nextIndex],
+    reorderedImageUrls[currentIndex],
+  ];
+  [reorderedBlobPathnames[currentIndex], reorderedBlobPathnames[nextIndex]] = [
+    reorderedBlobPathnames[nextIndex],
+    reorderedBlobPathnames[currentIndex],
+  ];
+
+  try {
+    await prisma.project.update({
+      where: { id: project.id },
+      data: {
+        galleryImageUrls: reorderedImageUrls,
+        galleryBlobPathnames: reorderedBlobPathnames,
+      },
+    });
+  } catch {
+    redirectWithMessage('/admin/projects', 'error', 'Unable to update project gallery order.');
+  }
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+gallery+order+updated.');
+}
+
 export async function moveFaqEntryAction(formData: FormData) {
   await requireAdminUser();
 
@@ -992,6 +1096,127 @@ export async function updateProjectAction(formData: FormData) {
   redirect('/admin/projects?success=Project+updated.');
 }
 
+export async function addProjectGalleryImageAction(formData: FormData) {
+  await requireAdminUser();
+
+  if (!isBlobConfigured()) {
+    redirectWithMessage('/admin/projects', 'error', 'Set BLOB_READ_WRITE_TOKEN before updating project images.');
+  }
+
+  const projectId = formData.get('projectId');
+
+  if (typeof projectId !== 'string' || !projectId) {
+    redirectWithMessage('/admin/projects', 'error', 'Missing project to update.');
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      galleryImageUrls: true,
+      galleryBlobPathnames: true,
+    },
+  });
+
+  if (!project) {
+    redirectWithMessage('/admin/projects', 'error', 'Project not found.');
+  }
+
+  validateProjectGalleryState(project);
+
+  const image = formData.get('image');
+
+  if (!(image instanceof File) || image.size === 0) {
+    redirectWithMessage('/admin/projects', 'error', 'Choose an image file for the project gallery.');
+  }
+
+  const imageValidationError = validateProjectImageFile(image);
+
+  if (imageValidationError) {
+    redirectWithMessage('/admin/projects', 'error', imageValidationError);
+  }
+
+  try {
+    const blob = await uploadProjectImageToBlob(image);
+
+    await prisma.project.update({
+      where: { id: project.id },
+      data: {
+        galleryImageUrls: [...project.galleryImageUrls, blob.url],
+        galleryBlobPathnames: [...project.galleryBlobPathnames, blob.pathname],
+      },
+    });
+  } catch (error) {
+    redirectWithMessage('/admin/projects', 'error', getErrorMessage(error, 'Unable to upload the project gallery image.'));
+  }
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+gallery+slide+uploaded.');
+}
+
+export async function setProjectCoverImageAction(formData: FormData) {
+  await requireAdminUser();
+
+  const projectId = formData.get('projectId');
+  const galleryIndexResult = parseNonNegativeIntegerField(formData.get('galleryIndex'), 'Project gallery slide');
+
+  if (typeof projectId !== 'string' || !projectId) {
+    redirectWithMessage('/admin/projects', 'error', 'Missing project to update.');
+  }
+
+  if ('error' in galleryIndexResult) {
+    redirectWithMessage('/admin/projects', 'error', galleryIndexResult.error);
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      coverImageUrl: true,
+      coverBlobPathname: true,
+      galleryImageUrls: true,
+      galleryBlobPathnames: true,
+    },
+  });
+
+  if (!project) {
+    redirectWithMessage('/admin/projects', 'error', 'Project not found.');
+  }
+
+  validateProjectGalleryState(project);
+
+  const galleryIndex = galleryIndexResult.value;
+
+  if (galleryIndex >= project.galleryImageUrls.length) {
+    redirectWithMessage('/admin/projects', 'error', 'Project gallery slide not found.');
+  }
+
+  const nextCoverImageUrl = project.galleryImageUrls[galleryIndex];
+  const nextCoverBlobPathname = project.galleryBlobPathnames[galleryIndex];
+  const nextGalleryImageUrls = project.galleryImageUrls.slice();
+  const nextGalleryBlobPathnames = project.galleryBlobPathnames.slice();
+
+  nextGalleryImageUrls[galleryIndex] = project.coverImageUrl;
+  nextGalleryBlobPathnames[galleryIndex] = project.coverBlobPathname;
+
+  await prisma.project.update({
+    where: { id: project.id },
+    data: {
+      coverImageUrl: nextCoverImageUrl,
+      coverBlobPathname: nextCoverBlobPathname,
+      galleryImageUrls: nextGalleryImageUrls,
+      galleryBlobPathnames: nextGalleryBlobPathnames,
+    },
+  });
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+cover+updated.');
+}
+
 export async function updateFaqEntryAction(formData: FormData) {
   await requireAdminUser();
 
@@ -1180,6 +1405,67 @@ export async function deleteProjectAction(formData: FormData) {
   revalidatePath('/');
   revalidatePath('/admin/projects');
   redirect('/admin/projects?success=Project+deleted.');
+}
+
+export async function deleteProjectGalleryImageAction(formData: FormData) {
+  await requireAdminUser();
+
+  if (!isBlobConfigured()) {
+    redirectWithMessage('/admin/projects', 'error', 'Set BLOB_READ_WRITE_TOKEN before deleting project images.');
+  }
+
+  const projectId = formData.get('projectId');
+  const galleryIndexResult = parseNonNegativeIntegerField(formData.get('galleryIndex'), 'Project gallery slide');
+
+  if (typeof projectId !== 'string' || !projectId) {
+    redirectWithMessage('/admin/projects', 'error', 'Missing project gallery slide to delete.');
+  }
+
+  if ('error' in galleryIndexResult) {
+    redirectWithMessage('/admin/projects', 'error', galleryIndexResult.error);
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      galleryImageUrls: true,
+      galleryBlobPathnames: true,
+    },
+  });
+
+  if (!project) {
+    redirectWithMessage('/admin/projects', 'error', 'Project not found.');
+  }
+
+  validateProjectGalleryState(project);
+
+  const galleryIndex = galleryIndexResult.value;
+
+  if (galleryIndex >= project.galleryImageUrls.length) {
+    redirectWithMessage('/admin/projects', 'error', 'Project gallery slide not found.');
+  }
+
+  const galleryBlobPathname = project.galleryBlobPathnames[galleryIndex];
+  const nextGalleryImageUrls = project.galleryImageUrls.filter((_, index) => index !== galleryIndex);
+  const nextGalleryBlobPathnames = project.galleryBlobPathnames.filter((_, index) => index !== galleryIndex);
+
+  await prisma.project.update({
+    where: { id: project.id },
+    data: {
+      galleryImageUrls: nextGalleryImageUrls,
+      galleryBlobPathnames: nextGalleryBlobPathnames,
+    },
+  });
+
+  try {
+    await deleteBlobIfPresent(galleryBlobPathname);
+  } catch {}
+
+  revalidateTag(PROJECTS_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/projects');
+  redirect('/admin/projects?success=Project+gallery+slide+deleted.');
 }
 
 export async function deleteFaqEntryAction(formData: FormData) {

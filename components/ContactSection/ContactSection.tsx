@@ -44,6 +44,15 @@ function parsePositiveInteger(value: string) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
+const dimensionOptions = Array.from({ length: 24 }, (_, index) => {
+  const value = String(index + 2);
+
+  return {
+    value,
+    label: `${value} FT`,
+  };
+});
+
 export function ContactSection({ details, calcTiers }: ContactSectionProps) {
   const [form, setForm] = useState<ContactFormState>(initialState);
 
@@ -73,9 +82,11 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
         ? 'Estimate will appear after calc periods are configured.'
         : area !== null
           ? `No configured price for ${area} sqft.`
-          : 'Enter length and width to see your estimate before sending.';
+          : 'Select height and width to see your estimate before sending.';
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = event.target;
 
     if ((name === 'length' || name === 'width') && value !== '' && !/^\d+$/.test(value)) {
@@ -100,7 +111,7 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
         `Phone: ${form.phone || '-'}`,
         `Email: ${form.email || '-'}`,
         `Place: ${form.place || '-'}`,
-        `Length: ${form.length || '-'}`,
+        `Height: ${form.length || '-'}`,
         `Width: ${form.width || '-'}`,
         `Area: ${area ?? '-'}`,
         `Estimated price: ${estimatedPrice !== null ? `$${estimatedPrice.toLocaleString('en-US')}` : 'Unavailable'}`,
@@ -199,7 +210,7 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
             <div className={styles.calcFieldsRow}>
               <label className={`${styles.field} ${styles.calcField}`}>
                 <span className={styles.fieldLabel}>
-                  <span>Length of screens</span>
+                  <span>Height</span>
                   <span className={styles.calcHelp}>
                     <button
                       aria-describedby="contact-estimate-tooltip"
@@ -211,38 +222,44 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
                     </button>
                     <span className={styles.calcTooltip} id="contact-estimate-tooltip" role="tooltip">
                       <strong className={styles.calcTooltipTitle}>See your estimate before sending</strong>
-                      <span>Enter length and width in whole numbers.</span>
+                      <span>Select height and width in feet.</span>
                     </span>
                   </span>
                 </span>
-                <input
-                  inputMode="numeric"
-                  min="1"
+                <select
                   name="length"
                   onChange={handleChange}
-                  pattern="[0-9]*"
-                  placeholder="Length"
                   required
-                  step="1"
-                  type="number"
                   value={form.length}
-                />
+                >
+                  <option disabled value="">
+                    Height
+                  </option>
+                  {dimensionOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               <label className={`${styles.field} ${styles.calcField}`}>
                 <span>Width</span>
-                <input
-                  inputMode="numeric"
-                  min="1"
+                <select
                   name="width"
                   onChange={handleChange}
-                  pattern="[0-9]*"
-                  placeholder="Width"
                   required
-                  step="1"
-                  type="number"
                   value={form.width}
-                />
+                >
+                  <option disabled value="">
+                    Width
+                  </option>
+                  {dimensionOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               <div
