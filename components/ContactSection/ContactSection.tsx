@@ -44,14 +44,19 @@ function parsePositiveInteger(value: string) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-const dimensionOptions = Array.from({ length: 24 }, (_, index) => {
-  const value = String(index + 2);
+function createDimensionOptions(maxValue: number) {
+  return Array.from({ length: maxValue - 1 }, (_, index) => {
+    const value = String(index + 2);
 
-  return {
-    value,
-    label: `${value} FT`,
-  };
-});
+    return {
+      value,
+      label: `FT ${value}`,
+    };
+  });
+}
+
+const heightOptions = createDimensionOptions(17);
+const widthOptions = createDimensionOptions(25);
 
 export function ContactSection({ details, calcTiers }: ContactSectionProps) {
   const [form, setForm] = useState<ContactFormState>(initialState);
@@ -209,6 +214,25 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
 
             <div className={styles.calcFieldsRow}>
               <label className={`${styles.field} ${styles.calcField}`}>
+                <span>Width</span>
+                <select
+                  name="width"
+                  onChange={handleChange}
+                  required
+                  value={form.width}
+                >
+                  <option disabled value="">
+                    Width
+                  </option>
+                  {widthOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className={`${styles.field} ${styles.calcField}`}>
                 <span className={styles.fieldLabel}>
                   <span>Height</span>
                   <span className={styles.calcHelp}>
@@ -235,26 +259,7 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
                   <option disabled value="">
                     Height
                   </option>
-                  {dimensionOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className={`${styles.field} ${styles.calcField}`}>
-                <span>Width</span>
-                <select
-                  name="width"
-                  onChange={handleChange}
-                  required
-                  value={form.width}
-                >
-                  <option disabled value="">
-                    Width
-                  </option>
-                  {dimensionOptions.map((option) => (
+                  {heightOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
