@@ -50,6 +50,7 @@ body {
 main {
   display: block;
   overflow: hidden;
+  background: var(--panel);
 }
 
 img {

@@ -8,6 +8,9 @@ type SiteFooterProps = {
 };
 
 export function SiteFooter({ details, socialLinks: _socialLinks }: SiteFooterProps) {
+  const email = details.email.toLowerCase();
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -35,14 +38,14 @@ export function SiteFooter({ details, socialLinks: _socialLinks }: SiteFooterPro
           <a className={styles.inlineLine} href={`tel:${details.phone.replace(/[^+\d]/g, '')}`}>
             <span>Phone :</span> {details.phone}
           </a>
-          <a className={styles.inlineLine} href={`mailto:${details.email}`}>
-            <span>Email :</span> {details.email}
+          <a className={styles.inlineLine} href={`mailto:${email}`}>
+            <span>Email :</span> {email}
           </a>
         </div>
 
         <div className={styles.block}>
           <a className={styles.copyright} href="https://boriskov.com" rel="noreferrer" target="_blank">
-            Copyright © 2025 Areve - All Seasons Comfort.
+            Copyright © {currentYear} Areve - All Seasons Comfort.
             <br />
             Powered by BorisKov studio
           </a>

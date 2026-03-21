@@ -1,12 +1,13 @@
 .section {
   padding: clamp(1.5rem, 3vw, 2.5rem) 1em 2.5em;
+  background: var(--panel);
 }
 
 .inner {
   width: min(var(--max-width), 100%);
   margin: 0 auto;
   display: grid;
-  gap: clamp(2rem, 4vw, 3.25rem);
+  gap: clamp(1rem, 2vw, 1.5rem);
 }
 
 .header {
@@ -15,8 +16,8 @@
   display: grid;
   grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
   gap: clamp(1.75rem, 4vw, 4rem);
-  align-items: center;
-  padding: clamp(0.75rem, 2vw, 1.25rem) 0 clamp(1.25rem, 2.5vw, 1.9rem);
+  align-items: start;
+  padding: clamp(0.5rem, 1vw, 0.75rem) 0;
 }
 
 .headingBlock {
@@ -48,6 +49,7 @@
 
 .railViewport {
   overflow: hidden;
+  min-height: calc(var(--swatch-width) + 1rem);
   padding: 0.5rem 0;
   opacity: 0;
   transform: translate3d(42px, 0, 0);
@@ -77,6 +79,7 @@
 
 .railTrack {
   display: flex;
+  align-items: stretch;
   width: max-content;
   will-change: transform;
   transform: translate3d(0, 0, 0);
@@ -84,6 +87,7 @@
 
 .railGroup {
   display: flex;
+  align-items: stretch;
   gap: var(--rail-gap);
   flex-shrink: 0;
   min-width: max-content;
@@ -92,13 +96,15 @@
 
 .swatch {
   flex: 0 0 var(--swatch-width);
+  width: var(--swatch-width);
 }
 
 .swatchImageWrap {
   position: relative;
-  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: var(--swatch-width);
   overflow: hidden;
-  background: transparent;
+  background: var(--panel);
   transition: transform 220ms ease;
 }
 
@@ -112,18 +118,18 @@
 
 .showcase {
   position: relative;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  padding: clamp(3rem, 5vw, 4rem) 0;
-  background: linear-gradient(90deg, var(--accent) 75%, #fff 75%);
+  width: 100%;
+  margin-left: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .showcaseContent {
-  width: min(var(--max-width), calc(100vw - 2em));
+  width: 100%;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(22rem, 1fr) minmax(24rem, 1.22fr);
-  align-items: center;
+  align-items: stretch;
   gap: clamp(1.5rem, 2.75vw, 3rem);
 }
 
@@ -133,9 +139,9 @@
   gap: 18px;
   min-height: clamp(18rem, 22vw, 22rem);
   margin-right: 0;
-  padding: 0 clamp(1rem, 2vw, 1.5rem) 0 0;
+  padding: clamp(2rem, 3vw, 3rem);
   color: var(--panel);
-  background: transparent;
+  background: var(--accent);
 }
 
 .copyCard h3 {

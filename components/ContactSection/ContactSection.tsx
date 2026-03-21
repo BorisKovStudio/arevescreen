@@ -94,7 +94,7 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
         ? 'Estimate will appear after calc periods are configured.'
         : area !== null
           ? `No configured price for ${area} sqft.`
-          : 'Select height and width to see your estimate before sending.';
+          : 'Select width and height to see your estimate before sending.';
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -281,7 +281,7 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
                     </button>
                     <span className={styles.calcTooltip} id="contact-estimate-tooltip" role="tooltip">
                       <strong className={styles.calcTooltipTitle}>See your estimate before sending</strong>
-                      <span>Select height and width in feet.</span>
+                      <span>Select width and height in feet.</span>
                     </span>
                   </span>
                 </span>
@@ -307,7 +307,27 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
                   estimatedPrice === null ? styles.estimateBoxMuted : ''
                 }`.trim()}
               >
-                <span className={styles.estimateLabel}>Estimated price</span>
+                <div className={styles.estimateHeader}>
+                  <span className={styles.estimateLabel}>Estimated price</span>
+                  <span className={styles.calcHelp}>
+                    <button
+                      aria-describedby="contact-final-price-tooltip"
+                      aria-label="Final price info"
+                      className={styles.calcHelpButton}
+                      type="button"
+                    >
+                      i
+                    </button>
+                    <span
+                      className={`${styles.calcTooltip} ${styles.calcTooltipRight}`}
+                      id="contact-final-price-tooltip"
+                      role="tooltip"
+                    >
+                      <strong className={styles.calcTooltipTitle}>Estimated price</strong>
+                      <span>The final price will be provided after review by a specialist.</span>
+                    </span>
+                  </span>
+                </div>
                 <strong className={styles.estimateValue}>{estimateTitle}</strong>
                 <span className={styles.estimateCaption}>{estimateCaption}</span>
               </div>
