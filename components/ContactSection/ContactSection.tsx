@@ -1,7 +1,8 @@
 'use client';
 
 import { type ChangeEvent, type FormEvent, useState } from 'react';
-import type { ContactDetails } from '@/data/siteContent';
+import type { ContactDetails, SocialLink } from '@/data/siteContent';
+import { SocialIcon } from '@/components/SocialIcon/SocialIcon';
 import styles from './ContactSection.module.css';
 
 type ContactCalcTier = {
@@ -13,6 +14,7 @@ type ContactCalcTier = {
 type ContactSectionProps = {
   details: ContactDetails;
   calcTiers: ContactCalcTier[];
+  socialLinks: SocialLink[];
 };
 
 type ContactFormState = {
@@ -63,7 +65,7 @@ function createDimensionOptions(maxValue: number) {
 const heightOptions = createDimensionOptions(17);
 const widthOptions = createDimensionOptions(25);
 
-export function ContactSection({ details, calcTiers }: ContactSectionProps) {
+export function ContactSection({ details, calcTiers, socialLinks }: ContactSectionProps) {
   const [form, setForm] = useState<ContactFormState>(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitState, setSubmitState] = useState<SubmitState>(null);
@@ -190,6 +192,22 @@ export function ContactSection({ details, calcTiers }: ContactSectionProps) {
               {details.address}
             </a>
           </article>
+
+          <div aria-label="Social links" className={styles.socials}>
+            {socialLinks.map((item) => (
+              <a
+                key={item.label}
+                aria-label={item.label}
+                className={styles.socialLink}
+                href={item.href}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <SocialIcon className={styles.socialIcon} label={item.label} />
+                <span className={styles.srOnly}>{item.label}</span>
+              </a>
+            ))}
+          </div>
         </div>
 
         <div className={styles.formShell}>

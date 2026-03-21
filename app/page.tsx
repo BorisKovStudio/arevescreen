@@ -59,7 +59,7 @@ export default async function HomePage() {
         <CertificatesSection items={certificates} />
         <ProjectsSection items={projects} />
         <FaqSection image={featureImages.faq} items={faqItems} />
-        <ContactSection calcTiers={calcTiers} details={contactDetails} />
+        <ContactSection calcTiers={calcTiers} details={contactDetails} socialLinks={socialLinks} />
       </main>
       <SiteFooter details={contactDetails} socialLinks={socialLinks} />
     </>
