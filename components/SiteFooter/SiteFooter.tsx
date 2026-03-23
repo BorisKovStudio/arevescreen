@@ -45,7 +45,7 @@ export function SiteFooter({ details, socialLinks: _socialLinks }: SiteFooterPro
 
         <div className={styles.block}>
           <a className={styles.copyright} href="https://boriskov.com" rel="noreferrer" target="_blank">
-            Copyright © {currentYear} Areve - All Seasons Comfort.
+            Copyright © {currentYear} Areve - <span className={styles.noWrap}>All Seasons Comfort.</span>
             <br />
             Powered by BorisKov studio
           </a>
