@@ -80,6 +80,56 @@
   gap: 16px;
 }
 
+.mobileSlider {
+  display: none;
+}
+
+.mobileViewport {
+  overflow: hidden;
+}
+
+.mobileTrack {
+  display: flex;
+  transition: transform 240ms ease;
+  will-change: transform;
+}
+
+.mobileSlide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.mobileDots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mobileDotButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.mobileDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.22);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.mobileDotButtonActive .mobileDot {
+  background: var(--accent);
+  transform: scale(1.15);
+}
+
 .tabList {
   display: flex;
   align-items: center;
@@ -193,20 +243,75 @@
 
 @media (max-width: 767px) {
   .section {
-    padding: 2.5em 1.25em 1.5em;
+    padding: 2.25em 1em 1.5em;
   }
 
-  .grid,
-  .gridActive {
-    grid-template-columns: 1fr;
+  .inner {
+    gap: 14px;
+  }
+
+  .copy {
+    gap: 14px;
+    padding: 20px 18px;
+    background: var(--panel);
+    box-shadow: var(--shadow-card);
+  }
+
+  .heading {
+    font-size: 13px;
+    letter-spacing: 1.8px;
+  }
+
+  .list {
+    gap: 11px;
+    margin-top: 0;
+  }
+
+  .list li {
+    padding-left: 19px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .list li::before {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .button {
+    margin-top: 2px;
+    padding: 0.95em 1.35em;
+    font-size: 13px;
+  }
+
+  .tabs {
+    display: none;
+  }
+
+  .mobileSlider {
+    display: grid;
+    gap: 14px;
   }
 
   .card {
-    padding: 28px;
+    gap: 12px;
+    padding: 20px 18px;
+    border-top-width: 3px;
+    box-shadow: var(--shadow-soft);
   }
 
   .imageWrap {
-    width: 50px;
-    height: 50px;
+    width: 68px;
+    height: 56px;
+  }
+
+  .card h3 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .card p {
+    font-size: 15px;
+    line-height: 1.55;
   }
 }

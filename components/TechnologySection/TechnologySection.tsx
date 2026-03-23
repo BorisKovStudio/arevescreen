@@ -20,6 +20,7 @@ export function TechnologySection({ items }: TechnologySectionProps) {
   }, []);
 
   const [activeTab, setActiveTab] = useState(0);
+  const [activeMobileSlide, setActiveMobileSlide] = useState(0);
 
   return (
     <section className={styles.section} id="specialties">
@@ -85,6 +86,48 @@ export function TechnologySection({ items }: TechnologySectionProps) {
                   </article>
                 ))}
               </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.mobileSlider}>
+          <div className={styles.mobileViewport}>
+            <div
+              className={styles.mobileTrack}
+              style={{ transform: `translateX(-${activeMobileSlide * 100}%)` }}
+            >
+              {items.map((item) => (
+                <div key={item.title} className={styles.mobileSlide}>
+                  <article className={styles.card}>
+                    <div className={styles.imageWrap}>
+                      <Image
+                        alt={item.title}
+                        className={styles.image}
+                        fill
+                        sizes="100vw"
+                        src={item.image}
+                      />
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </article>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.mobileDots} aria-label="Technology slides">
+            {items.map((item, index) => (
+              <button
+                aria-label={`Show ${item.title}`}
+                aria-pressed={activeMobileSlide === index}
+                className={`${styles.mobileDotButton} ${activeMobileSlide === index ? styles.mobileDotButtonActive : ''}`}
+                key={item.title}
+                onClick={() => setActiveMobileSlide(index)}
+                type="button"
+              >
+                <span className={styles.mobileDot} />
+              </button>
             ))}
           </div>
         </div>
